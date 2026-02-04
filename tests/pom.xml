@@ -184,7 +184,7 @@
                         <appArgLine>-consoleLog -console 5002 -noExit</appArgLine>
                         -->
                         <defaultStartLevel>
-                            <level>4</level>
+                            <level>6</level>
                             <autoStart>true</autoStart>
                         </defaultStartLevel>
                         <bundleStartLevel>
