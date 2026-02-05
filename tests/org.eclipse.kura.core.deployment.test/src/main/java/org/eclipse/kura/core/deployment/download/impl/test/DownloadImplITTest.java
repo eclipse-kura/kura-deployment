@@ -128,7 +128,7 @@ public class DownloadImplITTest {
     }
 
     @Reference(target = "(kura.service.pid=" + REST_SERVICE_PID + ")")
-    public static void setRestService(ConfigurableComponent restService) {
+    public void setRestService(ConfigurableComponent restService) {
         DownloadImplITTest.restService = restService;
         dependencies.countDown();
     }
