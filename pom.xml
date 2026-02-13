@@ -40,7 +40,7 @@
         <module>target-definition</module>
         <module>bundles</module>
         <module>distrib</module>
-        <module>kura-deployment-bom</module>
+        <module>kura-deployment-tycho-deps</module>
         <module>tests</module>
     </modules>
 </project>
