@@ -30,8 +30,10 @@ public interface Validable {
 
     public static void validate(Validable validable, String exceptionMessage) {
         if (!isValid(validable)) {
-            throw new WebApplicationException(
-                    Response.status(Status.BAD_REQUEST).entity(exceptionMessage).type(MediaType.TEXT_PLAIN).build());
+            throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+                    .entity(exceptionMessage)
+                    .type(MediaType.TEXT_PLAIN)
+                    .build());
         }
     }
 }

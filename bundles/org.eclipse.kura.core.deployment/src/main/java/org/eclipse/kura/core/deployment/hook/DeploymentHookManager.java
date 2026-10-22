@@ -1,16 +1,15 @@
 /*******************************************************************************
  * Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
-
 package org.eclipse.kura.core.deployment.hook;
 
 import java.util.Collections;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-
 import org.eclipse.kura.configuration.ConfigurationService;
 import org.eclipse.kura.deployment.hook.DeploymentHook;
 import org.osgi.framework.BundleContext;
@@ -74,12 +72,12 @@ public class DeploymentHookManager {
             getBundleContext().ungetService(hook);
             logger.info("Hook unregistered: {}", hookId);
         }
-
     }
 
     private BundleContext getBundleContext() {
         if (this.bundleContext == null) {
-            this.bundleContext = FrameworkUtil.getBundle(DeploymentHookManager.class).getBundleContext();
+            this.bundleContext =
+                    FrameworkUtil.getBundle(DeploymentHookManager.class).getBundleContext();
         }
         return this.bundleContext;
     }
@@ -154,10 +152,13 @@ public class DeploymentHookManager {
 
         public String toString() {
             StringBuilder builder = new StringBuilder();
-            builder.append("request type: ").append(type).append(" hook id: ").append(hookId).append(" status: ")
+            builder.append("request type: ")
+                    .append(type)
+                    .append(" hook id: ")
+                    .append(hookId)
+                    .append(" status: ")
                     .append(hook == null ? "NOT BOUND" : "BOUND");
             return builder.toString();
         }
     }
-
 }

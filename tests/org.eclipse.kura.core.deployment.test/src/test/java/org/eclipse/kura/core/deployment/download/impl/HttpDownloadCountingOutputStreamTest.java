@@ -26,10 +26,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSocketFactory;
-
 import org.eclipse.kura.core.deployment.DownloadStatus;
 import org.eclipse.kura.core.deployment.download.DeploymentPackageDownloadOptions;
 import org.eclipse.kura.core.deployment.download.DownloadOptions;
@@ -123,7 +121,6 @@ public class HttpDownloadCountingOutputStreamTest {
         this.downloadOptions.setDownloadURL(downloadUrl);
         this.downloadOptions.setOut(this.outputStream);
         this.downloadOptions.setSslManagerService(this.sslManagerService);
-
     }
 
     private void givenHttpDownloadCountingOutputStream() {
@@ -133,9 +130,9 @@ public class HttpDownloadCountingOutputStreamTest {
             protected HttpURLConnection openConnection(URL localUrl) throws IOException {
                 HttpURLConnection urlConnection = null;
                 switch (localUrl.getProtocol().toLowerCase()) { //
-                case "http" -> urlConnection = mock(HttpURLConnection.class);
-                case "https" -> urlConnection = mock(HttpsURLConnection.class);
-                default -> throw new IllegalArgumentException("protocol not supported");
+                    case "http" -> urlConnection = mock(HttpURLConnection.class);
+                    case "https" -> urlConnection = mock(HttpsURLConnection.class);
+                    default -> throw new IllegalArgumentException("protocol not supported");
                 }
 
                 when(urlConnection.getInputStream())
@@ -201,5 +198,4 @@ public class HttpDownloadCountingOutputStreamTest {
             this.occurredException = e;
         }
     }
-
 }

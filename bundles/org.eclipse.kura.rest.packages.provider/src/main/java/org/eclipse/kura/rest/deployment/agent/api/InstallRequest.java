@@ -28,5 +28,4 @@ public class InstallRequest implements Validable {
     public boolean isValid() {
         return this.url != null;
     }
-
 }

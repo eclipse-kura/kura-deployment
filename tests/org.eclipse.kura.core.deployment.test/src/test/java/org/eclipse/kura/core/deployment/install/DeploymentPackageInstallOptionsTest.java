@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  ******************************************************************************/
@@ -24,7 +24,6 @@ import org.junit.Test;
 
 public class DeploymentPackageInstallOptionsTest {
 
-
     @Test
     public void testCreateOKJobId() throws KuraException {
         final DeploymentHookManager deploymentHookManager = new DeploymentHookManager();
@@ -35,8 +34,8 @@ public class DeploymentPackageInstallOptionsTest {
         request.addMetric(DeploymentPackageInstallOptions.METRIC_DP_INSTALL_SYSTEM_UPDATE, false);
         request.addMetric(DeploymentPackageOptions.METRIC_JOB_ID, 123L);
 
-        DeploymentPackageInstallOptions options = new DeploymentPackageInstallOptions(request, deploymentHookManager,
-                "/tmp");
+        DeploymentPackageInstallOptions options =
+                new DeploymentPackageInstallOptions(request, deploymentHookManager, "/tmp");
 
         assertEquals(123L, (long) options.getJobId());
     }
@@ -81,8 +80,8 @@ public class DeploymentPackageInstallOptionsTest {
         request.addMetric(KuraRequestPayload.REQUESTER_CLIENT_ID, "client");
         request.addMetric(DeploymentPackageInstallOptions.METRIC_INSTALL_VERIFIER_URI, "url");
 
-        DeploymentPackageInstallOptions opt = new DeploymentPackageInstallOptions(request, deploymentHookManager,
-                "/tmp");
+        DeploymentPackageInstallOptions opt =
+                new DeploymentPackageInstallOptions(request, deploymentHookManager, "/tmp");
 
         assertEquals("name", opt.getDpName());
         assertEquals("ver", opt.getDpVersion());
@@ -105,8 +104,8 @@ public class DeploymentPackageInstallOptionsTest {
         request.addMetric(DeploymentPackageOptions.METRIC_JOB_ID, 1234L);
         request.addMetric(DeploymentPackageInstallOptions.METRIC_DP_INSTALL_SYSTEM_UPDATE, false);
 
-        DeploymentPackageInstallOptions opt = new DeploymentPackageInstallOptions(request, deploymentHookManager,
-                "/tmp");
+        DeploymentPackageInstallOptions opt =
+                new DeploymentPackageInstallOptions(request, deploymentHookManager, "/tmp");
     }
 
     @Test(expected = KuraInvalidMessageException.class)
@@ -114,8 +113,8 @@ public class DeploymentPackageInstallOptionsTest {
         final DeploymentHookManager deploymentHookManager = new DeploymentHookManager();
 
         KuraPayload request = new KuraPayload();
-        DeploymentPackageInstallOptions opt = new DeploymentPackageInstallOptions(request, deploymentHookManager,
-                "/tmp");
+        DeploymentPackageInstallOptions opt =
+                new DeploymentPackageInstallOptions(request, deploymentHookManager, "/tmp");
     }
 
     @Test(expected = KuraInvalidMessageException.class)
@@ -128,8 +127,8 @@ public class DeploymentPackageInstallOptionsTest {
         request.addMetric(DeploymentPackageOptions.METRIC_JOB_ID, 1234L);
         request.addMetric(DeploymentPackageInstallOptions.METRIC_DP_INSTALL_SYSTEM_UPDATE, false);
 
-        DeploymentPackageInstallOptions opt = new DeploymentPackageInstallOptions(request, deploymentHookManager,
-                "/tmp");
+        DeploymentPackageInstallOptions opt =
+                new DeploymentPackageInstallOptions(request, deploymentHookManager, "/tmp");
     }
 
     @Test(expected = KuraInvalidMessageException.class)
@@ -142,8 +141,8 @@ public class DeploymentPackageInstallOptionsTest {
         request.addMetric(DeploymentPackageOptions.METRIC_JOB_ID, 1234L);
         request.addMetric(DeploymentPackageInstallOptions.METRIC_DP_INSTALL_SYSTEM_UPDATE, false);
 
-        DeploymentPackageInstallOptions opt = new DeploymentPackageInstallOptions(request, deploymentHookManager,
-                "/tmp");
+        DeploymentPackageInstallOptions opt =
+                new DeploymentPackageInstallOptions(request, deploymentHookManager, "/tmp");
     }
 
     @Test(expected = KuraInvalidMessageException.class)
@@ -156,8 +155,8 @@ public class DeploymentPackageInstallOptionsTest {
         request.addMetric(DeploymentPackageOptions.METRIC_DP_VERSION, "");
         request.addMetric(DeploymentPackageInstallOptions.METRIC_DP_INSTALL_SYSTEM_UPDATE, false);
 
-        DeploymentPackageInstallOptions opt = new DeploymentPackageInstallOptions(request, deploymentHookManager,
-                "/tmp");
+        DeploymentPackageInstallOptions opt =
+                new DeploymentPackageInstallOptions(request, deploymentHookManager, "/tmp");
     }
 
     @Test(expected = KuraInvalidMessageException.class)
@@ -170,7 +169,7 @@ public class DeploymentPackageInstallOptionsTest {
         request.addMetric(DeploymentPackageOptions.METRIC_DP_VERSION, "");
         request.addMetric(DeploymentPackageOptions.METRIC_JOB_ID, 1234L);
 
-        DeploymentPackageInstallOptions opt = new DeploymentPackageInstallOptions(request, deploymentHookManager,
-                "/tmp");
+        DeploymentPackageInstallOptions opt =
+                new DeploymentPackageInstallOptions(request, deploymentHookManager, "/tmp");
     }
 }

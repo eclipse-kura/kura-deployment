@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2018, 2022 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  ******************************************************************************/
@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.util.HashMap;
 import java.util.concurrent.CancellationException;
-
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.core.deployment.CloudDeploymentHandlerV2;
 import org.eclipse.kura.core.deployment.CloudDeploymentHandlerV2Options;
@@ -64,36 +63,38 @@ public class DownloadImplTest {
         String transferStatus = DownloadStatus.IN_PROGRESS.getStatusString();
         int downloadIndex = 1;
         String exceptionMessage = "test";
-        ProgressEvent progressEvent = new ProgressEvent(source, options, transferSize, transferProgress, transferStatus,
-                downloadIndex);
+        ProgressEvent progressEvent =
+                new ProgressEvent(source, options, transferSize, transferProgress, transferStatus, downloadIndex);
         progressEvent.setExceptionMessage(exceptionMessage);
 
         doAnswer(new Answer<Object>() {
 
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                assertEquals(3, args.length);
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] args = invocation.getArguments();
+                        assertEquals(3, args.length);
 
-                assertEquals(options, args[0]);
-                assertEquals(DownloadImpl.RESOURCE_DOWNLOAD, args[2]);
+                        assertEquals(options, args[0]);
+                        assertEquals(DownloadImpl.RESOURCE_DOWNLOAD, args[2]);
 
-                assertNotNull(args[1]);
+                        assertNotNull(args[1]);
 
-                KuraNotifyPayload knp = (KuraNotifyPayload) args[1];
+                        KuraNotifyPayload knp = (KuraNotifyPayload) args[1];
 
-                assertNotNull(knp.getTimestamp());
-                assertEquals(transferSize, knp.getTransferSize());
-                assertEquals(transferProgress, knp.getTransferProgress());
-                assertEquals(transferStatus, knp.getTransferStatus());
-                assertEquals(jobId, (long) knp.getJobId());
-                assertNotNull(knp.getErrorMessage());
-                assertEquals(exceptionMessage, knp.getErrorMessage());
-                assertEquals(downloadIndex, (int) knp.getMissingDownloads());
+                        assertNotNull(knp.getTimestamp());
+                        assertEquals(transferSize, knp.getTransferSize());
+                        assertEquals(transferProgress, knp.getTransferProgress());
+                        assertEquals(transferStatus, knp.getTransferStatus());
+                        assertEquals(jobId, (long) knp.getJobId());
+                        assertNotNull(knp.getErrorMessage());
+                        assertEquals(exceptionMessage, knp.getErrorMessage());
+                        assertEquals(downloadIndex, (int) knp.getMissingDownloads());
 
-                return null;
-            }
-        }).when(callback).publishMessage(any(), any(), any());
+                        return null;
+                    }
+                })
+                .when(callback)
+                .publishMessage(any(), any(), any());
 
         di.progressChanged(progressEvent);
 
@@ -116,8 +117,8 @@ public class DownloadImplTest {
         DownloadImpl di = new DownloadImpl(options, callback) {
 
             @Override
-            protected DownloadCountingOutputStream getDownloadInstance(String protocol,
-                    DownloadOptions downloadOptions) {
+            protected DownloadCountingOutputStream getDownloadInstance(
+                    String protocol, DownloadOptions downloadOptions) {
                 throw new CancellationException("test");
             }
         };
@@ -142,38 +143,40 @@ public class DownloadImplTest {
         DownloadImpl di = new DownloadImpl(options, callback) {
 
             @Override
-            protected DownloadCountingOutputStream getDownloadInstance(String protocol,
-                    DownloadOptions downloadOptions) {
+            protected DownloadCountingOutputStream getDownloadInstance(
+                    String protocol, DownloadOptions downloadOptions) {
                 throw new RuntimeException("test");
             }
         };
 
         doAnswer(new Answer<Void>() {
 
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                assertEquals(3, args.length);
+                    @Override
+                    public Void answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] args = invocation.getArguments();
+                        assertEquals(3, args.length);
 
-                assertEquals(options, args[0]);
-                assertEquals(DownloadImpl.RESOURCE_DOWNLOAD, args[2]);
+                        assertEquals(options, args[0]);
+                        assertEquals(DownloadImpl.RESOURCE_DOWNLOAD, args[2]);
 
-                assertNotNull(args[1]);
+                        assertNotNull(args[1]);
 
-                KuraNotifyPayload knp = (KuraNotifyPayload) args[1];
+                        KuraNotifyPayload knp = (KuraNotifyPayload) args[1];
 
-                assertNotNull(knp.getTimestamp());
-                assertEquals(0, knp.getTransferSize());
-                assertEquals(0, knp.getTransferProgress());
-                assertEquals(DownloadStatus.FAILED.getStatusString(), knp.getTransferStatus());
-                assertEquals(jobId, (long) knp.getJobId());
-                assertNotNull(knp.getErrorMessage());
-                assertEquals("Error during download process and verification!", knp.getErrorMessage());
-                assertEquals(0, (int) knp.getMissingDownloads());
+                        assertNotNull(knp.getTimestamp());
+                        assertEquals(0, knp.getTransferSize());
+                        assertEquals(0, knp.getTransferProgress());
+                        assertEquals(DownloadStatus.FAILED.getStatusString(), knp.getTransferStatus());
+                        assertEquals(jobId, (long) knp.getJobId());
+                        assertNotNull(knp.getErrorMessage());
+                        assertEquals("Error during download process and verification!", knp.getErrorMessage());
+                        assertEquals(0, (int) knp.getMissingDownloads());
 
-                return null;
-            }
-        }).when(callback).publishMessage(any(), any(), any());
+                        return null;
+                    }
+                })
+                .when(callback)
+                .publishMessage(any(), any(), any());
 
         di.downloadDeploymentPackageInternal();
 
@@ -215,7 +218,8 @@ public class DownloadImplTest {
         assertNotNull(respPayload.getTimestamp());
         assertEquals(0, respPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_SIZE));
         assertEquals(100, respPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_PROGRESS));
-        assertEquals(DownloadStatus.ALREADY_DONE.getStatusString(),
+        assertEquals(
+                DownloadStatus.ALREADY_DONE.getStatusString(),
                 respPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_STATUS));
         assertNull(respPayload.getMetric(KuraNotifyPayload.METRIC_JOB_ID));
     }
@@ -259,8 +263,8 @@ public class DownloadImplTest {
         DownloadImpl di = new DownloadImpl(options, callback) {
 
             @Override
-            protected DownloadCountingOutputStream getDownloadInstance(String protocol,
-                    DownloadOptions downloadOptions) {
+            protected DownloadCountingOutputStream getDownloadInstance(
+                    String protocol, DownloadOptions downloadOptions) {
 
                 assertTrue(true);
 
@@ -280,7 +284,8 @@ public class DownloadImplTest {
         try {
             TestUtil.invokePrivate(di, "incrementalDownloadFromURL", dpFile, url, downloadIndex);
         } catch (KuraException e) {
-            assertTrue("Error should contain the expected message",
+            assertTrue(
+                    "Error should contain the expected message",
                     e.getMessage().contains("Failed to verify checksum with empty algorithm"));
         }
     }
@@ -303,8 +308,8 @@ public class DownloadImplTest {
         DownloadImpl di = new DownloadImpl(options, callback) {
 
             @Override
-            protected DownloadCountingOutputStream getDownloadInstance(String protocol,
-                    DownloadOptions downloadOptions) {
+            protected DownloadCountingOutputStream getDownloadInstance(
+                    String protocol, DownloadOptions downloadOptions) {
 
                 assertTrue(true);
 
@@ -324,7 +329,8 @@ public class DownloadImplTest {
         try {
             TestUtil.invokePrivate(di, "incrementalDownloadFromURL", dpFile, url, downloadIndex);
         } catch (KuraException e) {
-            assertTrue("Error should contain the expected message",
+            assertTrue(
+                    "Error should contain the expected message",
                     e.getMessage().contains("Failed to verify checksum with algorithm: MD5"));
         }
 
@@ -349,8 +355,8 @@ public class DownloadImplTest {
         DownloadImpl di = new DownloadImpl(options, callback) {
 
             @Override
-            protected DownloadCountingOutputStream getDownloadInstance(String protocol,
-                    DownloadOptions downloadOptions) {
+            protected DownloadCountingOutputStream getDownloadInstance(
+                    String protocol, DownloadOptions downloadOptions) {
 
                 assertTrue(true);
 
@@ -387,33 +393,34 @@ public class DownloadImplTest {
 
         doAnswer(new Answer<Void>() {
 
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Object[] args = invocation.getArguments();
-                assertEquals(3, args.length);
+                    @Override
+                    public Void answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] args = invocation.getArguments();
+                        assertEquals(3, args.length);
 
-                assertEquals(options, args[0]);
-                assertEquals(DownloadImpl.RESOURCE_DOWNLOAD, args[2]);
+                        assertEquals(options, args[0]);
+                        assertEquals(DownloadImpl.RESOURCE_DOWNLOAD, args[2]);
 
-                assertNotNull(args[1]);
+                        assertNotNull(args[1]);
 
-                KuraNotifyPayload knp = (KuraNotifyPayload) args[1];
+                        KuraNotifyPayload knp = (KuraNotifyPayload) args[1];
 
-                assertNotNull(knp.getTimestamp());
-                assertEquals(0, knp.getTransferSize());
-                assertEquals(100, knp.getTransferProgress());
-                assertEquals(DownloadStatus.COMPLETED.getStatusString(), knp.getTransferStatus());
-                assertEquals(jobId, (long) knp.getJobId());
-                assertNull(knp.getErrorMessage());
+                        assertNotNull(knp.getTimestamp());
+                        assertEquals(0, knp.getTransferSize());
+                        assertEquals(100, knp.getTransferProgress());
+                        assertEquals(DownloadStatus.COMPLETED.getStatusString(), knp.getTransferStatus());
+                        assertEquals(jobId, (long) knp.getJobId());
+                        assertNull(knp.getErrorMessage());
 
-                return null;
-            }
-        }).when(callback).publishMessage(any(), any(), any());
+                        return null;
+                    }
+                })
+                .when(callback)
+                .publishMessage(any(), any(), any());
 
         TestUtil.invokePrivate(di, "alreadyDownloadedAsync");
 
         verify(callback).publishMessage(any(), any(), any());
         verify(callback, times(0)).installDownloadedFile(any(), any());
     }
-
 }

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2022 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *  3 PORT d.o.o.
@@ -29,7 +29,6 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.commons.io.FileUtils;
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
@@ -107,7 +106,7 @@ public class InstallImpl {
 
     public Properties getDeployedPackages() {
         Properties deployedPackages = new Properties();
-        try (FileInputStream fis = new FileInputStream(this.dpaConfPath);) {
+        try (FileInputStream fis = new FileInputStream(this.dpaConfPath); ) {
             deployedPackages.load(fis);
         } catch (IOException e) {
             logger.error("Error opening package configuration file", e);
@@ -142,7 +141,7 @@ public class InstallImpl {
                 Consumer<CommandStatus> commandCallback = status -> {
                     // Do nothing...
                 };
-                this.executorService.execute(new Command(new String[] { "reboot" }), commandCallback);
+                this.executorService.execute(new Command(new String[] {"reboot"}), commandCallback);
             }
         } catch (Exception e) {
             logger.info("Install failed!");
@@ -163,18 +162,17 @@ public class InstallImpl {
             throw new KuraProcessExecutionErrorException(e, "Failed to get script path");
         }
 
-        Command command = new Command(new String[] { "chmod", "700", shFilePath });
+        Command command = new Command(new String[] {"chmod", "700", shFilePath});
         command.setTimeout(60);
         status = this.executorService.execute(command);
         if (!status.getExitStatus().isSuccessful()) {
             throw new KuraProcessExecutionErrorException("Failed to change file mode");
         }
 
-        status = this.executorService.execute(new Command(new String[] { shFilePath }));
+        status = this.executorService.execute(new Command(new String[] {shFilePath}));
         if (!status.getExitStatus().isSuccessful()) {
             throw new KuraProcessExecutionErrorException("Failed to execute script");
         }
-
     }
 
     public void installInProgressSyncMessage(KuraResponsePayload respPayload) {
@@ -214,18 +212,19 @@ public class InstallImpl {
         this.callback.publishMessage(options, notify, RESOURCE_INSTALL);
     }
 
-    public void sendInstallConfirmations(String notificationPublisherPid,
-            CloudNotificationPublisher notificationPublisher) {
+    public void sendInstallConfirmations(
+            String notificationPublisherPid, CloudNotificationPublisher notificationPublisher) {
         logger.info("Ready to send Confirmations");
 
         File verificationDir = new File(this.installVerifDir);
         if (verificationDir.listFiles() != null) {
 
             for (File fileEntry : verificationDir.listFiles()) {
-                if (fileEntry.isFile() && (fileEntry.getName().endsWith(".sh") || fileEntry.getName().endsWith(".bat"))
+                if (fileEntry.isFile()
+                        && (fileEntry.getName().endsWith(".sh")
+                                || fileEntry.getName().endsWith(".bat"))
                         && isCorrectNotificationPublisher(notificationPublisherPid, fileEntry.getName())) {
                     runScriptAndNotify(notificationPublisher, fileEntry);
-
                 }
             }
         }
@@ -242,14 +241,14 @@ public class InstallImpl {
             logger.error("Failed to get script path");
         }
 
-        Command command = new Command(new String[] { "chmod", "700", fileEntryPath });
+        Command command = new Command(new String[] {"chmod", "700", fileEntryPath});
         command.setTimeout(60);
         status = this.executorService.execute(command);
         if (!status.getExitStatus().isSuccessful()) {
             logger.error("Failed to change file mode");
         }
 
-        String[] commandLine = { fileEntryPath };
+        String[] commandLine = {fileEntryPath};
         try {
             status = this.executorService.execute(new Command(commandLine));
             if (status.getExitStatus().isSuccessful()) {
@@ -276,21 +275,23 @@ public class InstallImpl {
         File downloadedFile = fileReference;
         StringBuilder dpPersistentFilePath = new StringBuilder();
 
-        try (InputStream dpInputStream = new FileInputStream(downloadedFile);) {
+        try (InputStream dpInputStream = new FileInputStream(downloadedFile); ) {
 
             dp = this.deploymentAdmin.installDeploymentPackage(dpInputStream);
 
             dpPersistentFilePath.append(this.packagesPath);
             dpPersistentFilePath.append(File.separator);
-            dpPersistentFilePath
-                    .append(FileUtilities.getFileName(dp.getName(), dp.getVersion().toString(), ".dp", "_"));
+            dpPersistentFilePath.append(
+                    FileUtilities.getFileName(dp.getName(), dp.getVersion().toString(), ".dp", "_"));
             File dpPersistentFile = new File(dpPersistentFilePath.toString());
-            
-            boolean isDownloadedInPersistentPath = downloadedFile.getCanonicalPath()
-                    .equals(dpPersistentFile.getCanonicalPath());
+
+            boolean isDownloadedInPersistentPath =
+                    downloadedFile.getCanonicalPath().equals(dpPersistentFile.getCanonicalPath());
 
             if (!isDownloadedInPersistentPath) {
-                logger.info("Moving downloaded DP from '{}' to '{}'.", downloadedFile.getCanonicalPath(),
+                logger.info(
+                        "Moving downloaded DP from '{}' to '{}'.",
+                        downloadedFile.getCanonicalPath(),
                         dpPersistentFile.getCanonicalPath());
                 Files.deleteIfExists(dpPersistentFile.toPath());
                 FileUtils.moveFile(downloadedFile, dpPersistentFile);
@@ -298,8 +299,10 @@ public class InstallImpl {
 
             addPackageToConfFile(dp.getName(), "file:" + dpPersistentFilePath.toString());
         } catch (IOException ex) {
-            logger.error("Unable to move downloaded DP from '" + downloadedFile.getCanonicalPath() + "' to '"
-                    + dpPersistentFilePath.toString() + "'.", ex);
+            logger.error(
+                    "Unable to move downloaded DP from '" + downloadedFile.getCanonicalPath() + "' to '"
+                            + dpPersistentFilePath.toString() + "'.",
+                    ex);
         } finally {
             if (!downloadedFile.getCanonicalPath().equals(dpPersistentFilePath.toString())) {
                 downloadedFile.delete();
@@ -315,11 +318,11 @@ public class InstallImpl {
         this.installPersistance.setProperty(DeploymentPackageOptions.METRIC_JOB_ID, Long.toString(options.getJobId()));
         this.installPersistance.setProperty(DeploymentPackageOptions.METRIC_DP_NAME, fileName);
         this.installPersistance.setProperty(DeploymentPackageOptions.METRIC_DP_VERSION, options.getDpVersion());
-        this.installPersistance.setProperty(CloudDeploymentHandlerV2.METRIC_REQUESTER_CLIENT_ID,
-                options.getRequestClientId());
+        this.installPersistance.setProperty(
+                CloudDeploymentHandlerV2.METRIC_REQUESTER_CLIENT_ID, options.getRequestClientId());
         this.installPersistance.setProperty(PERSISTANCE_FILE_NAME, fileName);
-        this.installPersistance.setProperty(DeploymentPackageOptions.NOTIFICATION_PUBLISHER_PID_KEY,
-                options.getNotificationPublisherPid());
+        this.installPersistance.setProperty(
+                DeploymentPackageOptions.NOTIFICATION_PUBLISHER_PID_KEY, options.getNotificationPublisherPid());
 
         if (this.installPersistanceDir == null) {
             logger.warn(MESSAGE_CONFIGURATION_FILE_NOT_SPECIFIED);
@@ -332,7 +335,7 @@ public class InstallImpl {
         pathSB.append(fileName);
         pathSB.append(PERSISTANCE_SUFFIX);
         String persistanceFile = pathSB.toString();
-        try (FileOutputStream fos = new FileOutputStream(persistanceFile);) {
+        try (FileOutputStream fos = new FileOutputStream(persistanceFile); ) {
             this.installPersistance.store(fos, null);
             fos.flush();
             fos.getFD().sync();
@@ -350,7 +353,7 @@ public class InstallImpl {
             return;
         }
 
-        try (FileOutputStream fos = new FileOutputStream(this.dpaConfPath);) {
+        try (FileOutputStream fos = new FileOutputStream(this.dpaConfPath); ) {
             deployedPackages.store(fos, null);
             fos.flush();
             fos.getFD().sync();
@@ -392,11 +395,11 @@ public class InstallImpl {
         String fileSystemFileName = downloadProperties.getProperty(PERSISTANCE_FILE_NAME);
         String requestClientId = downloadProperties.getProperty(CloudDeploymentHandlerV2.METRIC_REQUESTER_CLIENT_ID);
 
-        String notificationPid = downloadProperties
-                .getProperty(DeploymentPackageOptions.NOTIFICATION_PUBLISHER_PID_KEY);
+        String notificationPid =
+                downloadProperties.getProperty(DeploymentPackageOptions.NOTIFICATION_PUBLISHER_PID_KEY);
 
-        DeploymentPackageDownloadOptions deployOptions = new DeploymentPackageDownloadOptions(deployUrl, dpName,
-                dpVersion);
+        DeploymentPackageDownloadOptions deployOptions =
+                new DeploymentPackageDownloadOptions(deployUrl, dpName, dpVersion);
         deployOptions.setClientId(clientId);
         deployOptions.setJobId(jobId);
         deployOptions.setRequestClientId(requestClientId);
@@ -424,11 +427,11 @@ public class InstallImpl {
         String fileSystemFileName = downloadProperties.getProperty(PERSISTANCE_FILE_NAME);
         String requestClientId = downloadProperties.getProperty(CloudDeploymentHandlerV2.METRIC_REQUESTER_CLIENT_ID);
 
-        String notificationPid = downloadProperties
-                .getProperty(DeploymentPackageOptions.NOTIFICATION_PUBLISHER_PID_KEY);
+        String notificationPid =
+                downloadProperties.getProperty(DeploymentPackageOptions.NOTIFICATION_PUBLISHER_PID_KEY);
 
-        DeploymentPackageDownloadOptions deployOptions = new DeploymentPackageDownloadOptions(deployUrl, dpName,
-                dpVersion);
+        DeploymentPackageDownloadOptions deployOptions =
+                new DeploymentPackageDownloadOptions(deployUrl, dpName, dpVersion);
         deployOptions.setClientId(clientId);
         deployOptions.setJobId(jobId);
         deployOptions.setRequestClientId(requestClientId);
@@ -448,7 +451,8 @@ public class InstallImpl {
 
         for (File fileEntry : installDir.listFiles()) {
 
-            if (fileEntry.isFile() && fileEntry.getName().endsWith(PERSISTANCE_SUFFIX)
+            if (fileEntry.isFile()
+                    && fileEntry.getName().endsWith(PERSISTANCE_SUFFIX)
                     && fileEntry.getName().contains(executableName)) {
                 return fileEntry;
             }
@@ -459,7 +463,7 @@ public class InstallImpl {
 
     private Properties loadInstallPersistance(File installedDpPersistance) {
         Properties downloadProperies = new Properties();
-        try (FileReader fr = new FileReader(installedDpPersistance);) {
+        try (FileReader fr = new FileReader(installedDpPersistance); ) {
             downloadProperies.load(fr);
         } catch (IOException e) {
             logger.error("Exception loading install configuration file", e);
@@ -470,19 +474,22 @@ public class InstallImpl {
     public boolean isCorrectNotificationPublisher(String pid, String verificationFileName) {
 
         try (Stream<Path> filesStream = Files.list(Paths.get(this.installPersistanceDir))) {
-            List<Path> availableFiles = filesStream.filter(Files::isRegularFile).filter(filePath -> {
-                boolean isPersistanceFile = filePath.toFile().getName().endsWith(PERSISTANCE_SUFFIX);
-                if (isPersistanceFile) {
-                    Properties downloadProperties = loadInstallPersistance(filePath.toFile());
-                    String notificationPid = downloadProperties
-                            .getProperty(DeploymentPackageOptions.NOTIFICATION_PUBLISHER_PID_KEY);
-                    String executableFileName = downloadProperties.getProperty(PERSISTANCE_FILE_NAME);
-                    if (pid.equals(notificationPid) && verificationFileName.contains(executableFileName)) {
-                        return true;
-                    }
-                }
-                return false;
-            }).collect(Collectors.toList());
+            List<Path> availableFiles = filesStream
+                    .filter(Files::isRegularFile)
+                    .filter(filePath -> {
+                        boolean isPersistanceFile = filePath.toFile().getName().endsWith(PERSISTANCE_SUFFIX);
+                        if (isPersistanceFile) {
+                            Properties downloadProperties = loadInstallPersistance(filePath.toFile());
+                            String notificationPid = downloadProperties.getProperty(
+                                    DeploymentPackageOptions.NOTIFICATION_PUBLISHER_PID_KEY);
+                            String executableFileName = downloadProperties.getProperty(PERSISTANCE_FILE_NAME);
+                            if (pid.equals(notificationPid) && verificationFileName.contains(executableFileName)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    })
+                    .collect(Collectors.toList());
 
             boolean result = false;
             if (!availableFiles.isEmpty()) {

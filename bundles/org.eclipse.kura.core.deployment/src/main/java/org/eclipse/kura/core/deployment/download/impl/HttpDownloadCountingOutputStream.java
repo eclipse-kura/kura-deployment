@@ -23,9 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import javax.net.ssl.HttpsURLConnection;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.kura.KuraConnectException;
@@ -60,7 +58,11 @@ public class HttpDownloadCountingOutputStream extends GenericDownloadCountingOut
             this.future.cancel(true);
             this.executor.shutdownNow();
 
-            postProgressEvent(this.options.getClientId(), getByteCount(), this.totalBytes, DownloadStatus.CANCELLED,
+            postProgressEvent(
+                    this.options.getClientId(),
+                    getByteCount(),
+                    this.totalBytes,
+                    DownloadStatus.CANCELLED,
                     "Download cancelled");
         }
     }
@@ -87,16 +89,28 @@ public class HttpDownloadCountingOutputStream extends GenericDownloadCountingOut
         try {
             shouldAuthenticate = HttpDownloadCountingOutputStream.this.options.getUsername() != null
                     && HttpDownloadCountingOutputStream.this.options.getPassword() != null
-                    && !(HttpDownloadCountingOutputStream.this.options.getUsername().trim().isEmpty()
-                            && !HttpDownloadCountingOutputStream.this.options.getPassword().trim().isEmpty());
+                    && !(HttpDownloadCountingOutputStream.this
+                                    .options
+                                    .getUsername()
+                                    .trim()
+                                    .isEmpty()
+                            && !HttpDownloadCountingOutputStream.this
+                                    .options
+                                    .getPassword()
+                                    .trim()
+                                    .isEmpty());
 
             if (shouldAuthenticate) {
                 Authenticator.setDefault(new Authenticator() {
 
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(HttpDownloadCountingOutputStream.this.options.getUsername(),
-                                HttpDownloadCountingOutputStream.this.options.getPassword().toCharArray());
+                        return new PasswordAuthentication(
+                                HttpDownloadCountingOutputStream.this.options.getUsername(),
+                                HttpDownloadCountingOutputStream.this
+                                        .options
+                                        .getPassword()
+                                        .toCharArray());
                     }
                 });
             }
@@ -104,15 +118,18 @@ public class HttpDownloadCountingOutputStream extends GenericDownloadCountingOut
             HttpURLConnection.setFollowRedirects(false);
             URLConnection urlConnection = openAndConnect(HttpDownloadCountingOutputStream.this.downloadURL);
 
-
             HttpDownloadCountingOutputStream.this.is = urlConnection.getInputStream();
 
             String s = urlConnection.getHeaderField("Content-Length");
             logger.info("Content-lenght: {}", s);
 
             setTotalBytes(s != null ? Integer.parseInt(s) : -1);
-            postProgressEvent(HttpDownloadCountingOutputStream.this.options.getClientId(), 0,
-                    HttpDownloadCountingOutputStream.this.totalBytes, DownloadStatus.IN_PROGRESS, null);
+            postProgressEvent(
+                    HttpDownloadCountingOutputStream.this.options.getClientId(),
+                    0,
+                    HttpDownloadCountingOutputStream.this.totalBytes,
+                    DownloadStatus.IN_PROGRESS,
+                    null);
 
             int bufferSize = getBufferSize();
 
@@ -126,14 +143,24 @@ public class HttpDownloadCountingOutputStream extends GenericDownloadCountingOut
                 setBufferSize(newSize);
             }
 
-            long numBytes = IOUtils.copyLarge(HttpDownloadCountingOutputStream.this.is,
-                    HttpDownloadCountingOutputStream.this, new byte[bufferSize]);
-            postProgressEvent(HttpDownloadCountingOutputStream.this.options.getClientId(), numBytes,
-                    HttpDownloadCountingOutputStream.this.totalBytes, DownloadStatus.COMPLETED, null);
+            long numBytes = IOUtils.copyLarge(
+                    HttpDownloadCountingOutputStream.this.is,
+                    HttpDownloadCountingOutputStream.this,
+                    new byte[bufferSize]);
+            postProgressEvent(
+                    HttpDownloadCountingOutputStream.this.options.getClientId(),
+                    numBytes,
+                    HttpDownloadCountingOutputStream.this.totalBytes,
+                    DownloadStatus.COMPLETED,
+                    null);
 
         } catch (IOException e) {
-            postProgressEvent(HttpDownloadCountingOutputStream.this.options.getClientId(), getByteCount(),
-                    HttpDownloadCountingOutputStream.this.totalBytes, DownloadStatus.FAILED, e.getMessage());
+            postProgressEvent(
+                    HttpDownloadCountingOutputStream.this.options.getClientId(),
+                    getByteCount(),
+                    HttpDownloadCountingOutputStream.this.totalBytes,
+                    DownloadStatus.FAILED,
+                    e.getMessage());
             throw new KuraConnectException(e);
         } finally {
             if (HttpDownloadCountingOutputStream.this.is != null) {
@@ -168,8 +195,10 @@ public class HttpDownloadCountingOutputStream extends GenericDownloadCountingOut
 
         int responseCode = urlConnection.getResponseCode();
 
-        if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || //
-                responseCode == HttpURLConnection.HTTP_MOVED_PERM || //
+        if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+                || //
+                responseCode == HttpURLConnection.HTTP_MOVED_PERM
+                || //
                 responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
             String newLocation = urlConnection.getHeaderField("Location");
             if (StringUtils.isNotEmpty(newLocation)) {
@@ -179,7 +208,6 @@ public class HttpDownloadCountingOutputStream extends GenericDownloadCountingOut
             }
         }
         return urlConnection;
-
     }
 
     private void setupConnection(HttpURLConnection urlConnection) throws IOException, KuraConnectException {
@@ -191,8 +219,8 @@ public class HttpDownloadCountingOutputStream extends GenericDownloadCountingOut
                 httpsURLConnection.setHostnameVerifier((hostname, session) -> true);
             }
         } catch (GeneralSecurityException e) {
-            postProgressEvent(this.options.getClientId(), getByteCount(), this.totalBytes, DownloadStatus.FAILED,
-                    e.getMessage());
+            postProgressEvent(
+                    this.options.getClientId(), getByteCount(), this.totalBytes, DownloadStatus.FAILED, e.getMessage());
 
             throw new KuraConnectException(e, "Unable to create SSL Socket Factory.");
         }
@@ -211,10 +239,13 @@ public class HttpDownloadCountingOutputStream extends GenericDownloadCountingOut
     private void checkIsHttpProtocol(URLConnection urlConnection) throws KuraConnectException {
 
         if (!(urlConnection instanceof HttpURLConnection)) { // includes HttpsURLConnection check
-            postProgressEvent(this.options.getClientId(), getByteCount(), this.totalBytes, DownloadStatus.FAILED,
+            postProgressEvent(
+                    this.options.getClientId(),
+                    getByteCount(),
+                    this.totalBytes,
+                    DownloadStatus.FAILED,
                     "The request URL is not supported");
             throw new KuraConnectException("Unsupported protocol!");
         }
-
     }
 }

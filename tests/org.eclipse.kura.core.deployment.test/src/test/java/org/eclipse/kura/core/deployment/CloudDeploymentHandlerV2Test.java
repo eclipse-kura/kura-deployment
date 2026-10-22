@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2018, 2022 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  ******************************************************************************/
@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.cloudconnection.message.KuraMessage;
@@ -121,7 +120,6 @@ public class CloudDeploymentHandlerV2Test {
         when(systemService.getProperties()).thenReturn(null);
 
         handler.activate(componentContext, new HashMap<>());
-
     }
 
     @Test(expected = ComponentException.class)
@@ -146,7 +144,6 @@ public class CloudDeploymentHandlerV2Test {
         when(componentContext.getBundleContext()).thenReturn(bundleContext);
 
         handler.activate(componentContext, new HashMap<>());
-
     }
 
     @Test(expected = ComponentException.class)
@@ -275,9 +272,9 @@ public class CloudDeploymentHandlerV2Test {
         assertEquals(KuraResponsePayload.RESPONSE_CODE_OK, resPayload.getResponseCode());
         assertEquals(0, resPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_SIZE));
         assertEquals(100, resPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_PROGRESS));
-        assertEquals(DownloadStatus.ALREADY_DONE.getStatusString(),
+        assertEquals(
+                DownloadStatus.ALREADY_DONE.getStatusString(),
                 resPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_STATUS));
-
     }
 
     @Test
@@ -313,10 +310,10 @@ public class CloudDeploymentHandlerV2Test {
         assertEquals(KuraResponsePayload.RESPONSE_CODE_OK, resPayload.getResponseCode());
         assertEquals(0, resPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_SIZE));
         assertEquals(10, resPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_PROGRESS));
-        assertEquals(DownloadStatus.IN_PROGRESS.getStatusString(),
+        assertEquals(
+                DownloadStatus.IN_PROGRESS.getStatusString(),
                 resPayload.getMetric(KuraNotifyPayload.METRIC_TRANSFER_STATUS));
         assertEquals(1234L, resPayload.getMetric(KuraNotifyPayload.METRIC_JOB_ID));
-
     }
 
     @Test
@@ -340,8 +337,8 @@ public class CloudDeploymentHandlerV2Test {
 
         assertEquals(KuraResponsePayload.RESPONSE_CODE_OK, resPayload.getResponseCode());
         assertNotNull(resPayload.getTimestamp());
-        assertEquals(InstallStatus.IDLE.getStatusString(),
-                resPayload.getMetric(KuraInstallPayload.METRIC_INSTALL_STATUS));
+        assertEquals(
+                InstallStatus.IDLE.getStatusString(), resPayload.getMetric(KuraInstallPayload.METRIC_INSTALL_STATUS));
     }
 
     @Test
@@ -369,7 +366,8 @@ public class CloudDeploymentHandlerV2Test {
 
         assertEquals(KuraResponsePayload.RESPONSE_CODE_OK, resPayload.getResponseCode());
         assertNotNull(resPayload.getTimestamp());
-        assertEquals(InstallStatus.IN_PROGRESS.getStatusString(),
+        assertEquals(
+                InstallStatus.IN_PROGRESS.getStatusString(),
                 resPayload.getMetric(KuraInstallPayload.METRIC_INSTALL_STATUS));
     }
 
@@ -1075,7 +1073,10 @@ public class CloudDeploymentHandlerV2Test {
             @Override
             protected File getDpDownloadFile(final DeploymentPackageInstallOptions options) throws IOException {
                 String dpName = FileUtilities.getFileName(options.getDpName(), options.getDpVersion(), ".dp");
-                String packageFilename = new StringBuilder().append("/tmp").append(File.separator).append(dpName)
+                String packageFilename = new StringBuilder()
+                        .append("/tmp")
+                        .append(File.separator)
+                        .append(dpName)
                         .toString();
                 return new File(packageFilename);
             }
@@ -1115,7 +1116,9 @@ public class CloudDeploymentHandlerV2Test {
 
         KuraResponsePayload resPayload = (KuraResponsePayload) resMessage.getPayload();
 
-        assertEquals("Response code should match expected", KuraResponsePayload.RESPONSE_CODE_OK,
+        assertEquals(
+                "Response code should match expected",
+                KuraResponsePayload.RESPONSE_CODE_OK,
                 resPayload.getResponseCode());
 
         Thread.sleep(500);
@@ -1175,12 +1178,17 @@ public class CloudDeploymentHandlerV2Test {
 
         TestUtil.setFieldValue(handler, "pendingPackageUrl", null);
 
-        assertEquals("Response code should match expected", KuraResponsePayload.RESPONSE_CODE_ERROR,
+        assertEquals(
+                "Response code should match expected",
+                KuraResponsePayload.RESPONSE_CODE_ERROR,
                 resPayload.getResponseCode());
         assertNotNull("Response timestamp should be set", resPayload.getTimestamp());
-        assertEquals("Body should match", "Another resource is already in download",
+        assertEquals(
+                "Body should match",
+                "Another resource is already in download",
                 new String(resPayload.getBody(), Charset.forName("UTF-8")));
-        assertEquals(DownloadStatus.IN_PROGRESS.getStatusString(),
+        assertEquals(
+                DownloadStatus.IN_PROGRESS.getStatusString(),
                 resPayload.getMetric(CloudDeploymentHandlerV2.METRIC_DOWNLOAD_STATUS));
     }
 
@@ -1226,10 +1234,14 @@ public class CloudDeploymentHandlerV2Test {
 
         KuraResponsePayload resPayload = (KuraResponsePayload) resMessage.getPayload();
 
-        assertEquals("Response code should match expected", KuraResponsePayload.RESPONSE_CODE_ERROR,
+        assertEquals(
+                "Response code should match expected",
+                KuraResponsePayload.RESPONSE_CODE_ERROR,
                 resPayload.getResponseCode());
         assertNotNull("Response timestamp should be set", resPayload.getTimestamp());
-        assertEquals("Body should match", "Error checking download status",
+        assertEquals(
+                "Body should match",
+                "Error checking download status",
                 new String(resPayload.getBody(), Charset.forName("UTF-8")));
 
         verify(dlMock).isAlreadyDownloaded();
@@ -1305,7 +1317,8 @@ public class CloudDeploymentHandlerV2Test {
         KuraRequestPayload reqPayload = new KuraRequestPayload();
         KuraMessage message = new KuraMessage(reqPayload, reqResources);
 
-        reqPayload.addMetric(DeploymentPackageDownloadOptions.METRIC_DP_DOWNLOAD_URI,
+        reqPayload.addMetric(
+                DeploymentPackageDownloadOptions.METRIC_DP_DOWNLOAD_URI,
                 "https://s3-us-west-2.amazonaws.com/kura-repo/drivers/3.0.0-RELEASE/org.eclipse.kura.demo.heater_1.0.100.dp");
         reqPayload.addMetric(DeploymentPackageDownloadOptions.METRIC_DP_DOWNLOAD_PROTOCOL, "http");
         reqPayload.addMetric(DeploymentPackageOptions.METRIC_DP_NAME, "heater");
@@ -1609,7 +1622,9 @@ public class CloudDeploymentHandlerV2Test {
 
         KuraResponsePayload resPayload = (KuraResponsePayload) resMessage.getPayload();
 
-        assertEquals("Response code should match expected", KuraResponsePayload.RESPONSE_CODE_OK,
+        assertEquals(
+                "Response code should match expected",
+                KuraResponsePayload.RESPONSE_CODE_OK,
                 resPayload.getResponseCode());
 
         verify(ctxMock).getBundle(99);
@@ -1711,12 +1726,10 @@ public class CloudDeploymentHandlerV2Test {
             }
 
             @Override
-            public void postInstall(RequestContext context, Map<String, Object> properties) throws KuraException {
-            }
+            public void postInstall(RequestContext context, Map<String, Object> properties) throws KuraException {}
 
             @Override
-            public void postDownload(RequestContext context, Map<String, Object> properties) throws KuraException {
-            }
+            public void postDownload(RequestContext context, Map<String, Object> properties) throws KuraException {}
         }));
         final Properties associations = new Properties();
         associations.setProperty("testRequest", "testHook");
@@ -1755,12 +1768,10 @@ public class CloudDeploymentHandlerV2Test {
         manager.bindHook(mockHookReference("testHook", new DeploymentHook() {
 
             @Override
-            public void preDownload(RequestContext context, Map<String, Object> properties) throws KuraException {
-            }
+            public void preDownload(RequestContext context, Map<String, Object> properties) throws KuraException {}
 
             @Override
-            public void postInstall(RequestContext context, Map<String, Object> properties) throws KuraException {
-            }
+            public void postInstall(RequestContext context, Map<String, Object> properties) throws KuraException {}
 
             @Override
             public void postDownload(RequestContext context, Map<String, Object> properties) throws KuraException {
@@ -1803,5 +1814,4 @@ public class CloudDeploymentHandlerV2Test {
     public void testInstallDownloadedFile() {
         fail("Not yet implemented");
     }
-
 }

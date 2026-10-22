@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2023 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
@@ -20,8 +20,8 @@ public interface DeploymentAgentService {
      * {@linkplain org.osgi.service.event.Event Event} topic on which the result
      * of the deployment package installation is posted.
      */
-    public static final String EVENT_INSTALLED_TOPIC = DeploymentAgentService.class.getPackage().getName().replace('.',
-            '/') + "/INSTALLED";
+    public static final String EVENT_INSTALLED_TOPIC =
+            DeploymentAgentService.class.getPackage().getName().replace('.', '/') + "/INSTALLED";
 
     /**
      * {@linkplain org.osgi.service.event.Event Event} property
@@ -47,8 +47,8 @@ public interface DeploymentAgentService {
      * {@linkplain org.osgi.service.event.Event Event} topic on which the result
      * of the deployment package uninstallation is posted.
      */
-    public static final String EVENT_UNINSTALLED_TOPIC = DeploymentAgentService.class.getPackage().getName()
-            .replace('.', '/') + "/UNINSTALLED";
+    public static final String EVENT_UNINSTALLED_TOPIC =
+            DeploymentAgentService.class.getPackage().getName().replace('.', '/') + "/UNINSTALLED";
 
     /**
      * {@linkplain org.osgi.service.event.Event Event} property
@@ -64,10 +64,10 @@ public interface DeploymentAgentService {
      * The result of the package installation is notified asynchronously
      * posting an {@linkplain org.osgi.service.event.Event Event}
      * on the topic {@linkplain #EVENT_INSTALLED_TOPIC}
-     * 
+     *
      * @see org.osgi.service.deploymentadmin.DeploymentAdmin#installDeploymentPackage installDeploymentPackage
-     * 
-     * 
+     *
+     *
      * @param url
      *            The URL of the deployment package
      * @throws Exception
@@ -81,10 +81,10 @@ public interface DeploymentAgentService {
      * The result of the package uninstallation is notified asynchronously
      * posting an {@linkplain org.osgi.service.event.Event Event}
      * on the topic {@linkplain #EVENT_UNINSTALLED_TOPIC}
-     * 
+     *
      * @see org.osgi.service.deploymentadmin.DeploymentAdmin#uninstallDeploymentPackage uninstallDeploymentPackage
-     * 
-     * 
+     *
+     *
      * @param name
      *            The symbolic name of the deployment package
      * @throws Exception
@@ -94,7 +94,7 @@ public interface DeploymentAgentService {
 
     /**
      * Asks if the installation of a deployment package at the given URL is pending.
-     * 
+     *
      * @param url
      *            The URL of the deployment package
      * @return true if the installation of a deployment package at URL is pending
@@ -129,13 +129,12 @@ public interface DeploymentAgentService {
      *
      * @return the {@link MarketplacePackageDescriptor} object
      */
-    public MarketplacePackageDescriptor getMarketplacePackageDescriptor(String url,
-                    SslManagerService sslManagerService);
-
+    public MarketplacePackageDescriptor getMarketplacePackageDescriptor(
+            String url, SslManagerService sslManagerService);
 
     /**
      * Asks if the uninstallation of a deployment package with the given symbolic name is pending.
-     * 
+     *
      * @param name
      *            The symbolic name of the deployment package
      * @return true if the uninstallation of a deployment package at URL is pending

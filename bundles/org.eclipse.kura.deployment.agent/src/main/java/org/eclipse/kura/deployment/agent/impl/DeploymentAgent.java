@@ -38,11 +38,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.HttpsURLConnection;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.kura.KuraErrorCode;
@@ -101,8 +99,8 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
 
     private static final long THREAD_TERMINATION_TOUT = 1; // in seconds
 
-    private static final Set<PosixFilePermission> DEFAULT_PACKAGES_DIR_PERMISSIONS = PosixFilePermissions
-            .fromString("rwx------");
+    private static final Set<PosixFilePermission> DEFAULT_PACKAGES_DIR_PERMISSIONS =
+            PosixFilePermissions.fromString("rwx------");
 
     private DeploymentAdmin deploymentAdmin;
     private EventAdmin eventAdmin;
@@ -180,7 +178,8 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
         File packagesDir = new File(this.packagesPath);
         if (!packagesDir.exists()) {
             try {
-                Files.createDirectories(Path.of(this.packagesPath),
+                Files.createDirectories(
+                        Path.of(this.packagesPath),
                         PosixFilePermissions.asFileAttribute(DEFAULT_PACKAGES_DIR_PERMISSIONS));
             } catch (Exception e) {
                 throw new ComponentException("Cannot create packages directory", e);
@@ -201,7 +200,6 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
             logger.warn("Interrupted", e);
         }
         logger.info("DeploymentAgent Thread terminated? - {}", this.executor.isTerminated());
-
     }
 
     public void updated() {
@@ -279,8 +277,8 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
     }
 
     @Override
-    public MarketplacePackageDescriptor getMarketplacePackageDescriptor(String url,
-            SslManagerService sslManagerServiceOverride) {
+    public MarketplacePackageDescriptor getMarketplacePackageDescriptor(
+            String url, SslManagerService sslManagerServiceOverride) {
         // Note: the url accepted as argument should be already validated and belonging to the
         // Eclipse Marketplace domain such that it allows for downloading the descriptor file.
         HttpsURLConnection connection = null;
@@ -383,8 +381,8 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
         return this.systemService.getKuraMarketplaceCompatibilityVersion();
     }
 
-    private boolean checkCompatibility(String minKuraVersionString, String maxKuraVersionString,
-            Version currentProductVersion) {
+    private boolean checkCompatibility(
+            String minKuraVersionString, String maxKuraVersionString, Version currentProductVersion) {
         try {
             boolean haveMinKuraVersion = minKuraVersionString != null && !minKuraVersionString.isEmpty();
             boolean haveMaxKuraVersion = maxKuraVersionString != null && !maxKuraVersionString.isEmpty();
@@ -410,7 +408,9 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
             logger.error("Exception installing package at URL {}", url, e);
         } finally {
             boolean successful = dp != null;
-            logger.info("Posting INSTALLED event for package at URL {}: {}", url,
+            logger.info(
+                    "Posting INSTALLED event for package at URL {}: {}",
+                    url,
                     successful ? "successful" : "unsuccessful");
             synchronized (this.instPackageUrls) {
                 this.instPackageUrls.remove(url);
@@ -441,8 +441,8 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
             ex = e;
             logger.error("Exception uninstalling package {}", name, e);
         } finally {
-            logger.info("Posting UNINSTALLED event for package {}: {}", name,
-                    successful ? "successful" : "unsuccessful");
+            logger.info(
+                    "Posting UNINSTALLED event for package {}: {}", name, successful ? "successful" : "unsuccessful");
             synchronized (this.uninstPackageNames) {
                 this.uninstPackageNames.remove(name);
             }
@@ -500,7 +500,6 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
 
     private boolean isFile(String packageUri) throws URISyntaxException {
         return "file".equals(new URI(packageUri).getScheme());
-
     }
 
     protected Properties readDeployedPackages() {
@@ -525,7 +524,7 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
 
         File dpPersistentFile = null;
         DeploymentPackage dp = null;
-        try (InputStream dpInputStream = new FileInputStream(dpFile);) {
+        try (InputStream dpInputStream = new FileInputStream(dpFile); ) {
             dp = this.deploymentAdmin.installDeploymentPackage(dpInputStream);
 
             String dpFsName = dp.getName() + "_" + dp.getVersion() + ".dp";
@@ -545,7 +544,9 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
         } finally {
             // The file from which we have installed the deployment package will be deleted
             // unless it's a persistent deployment package file.
-            if (dpPersistentFile != null && dpPersistentFile.exists() && dpFile.exists()
+            if (dpPersistentFile != null
+                    && dpPersistentFile.exists()
+                    && dpFile.exists()
                     && !dpFile.getCanonicalPath().equals(dpPersistentFile.getCanonicalPath())) {
                 Files.delete(dpFile.toPath());
                 logger.debug("Deleted file: {}", dpFile.getName());
@@ -572,7 +573,8 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
 
         // handle redirect
         int responseCode = ((HttpURLConnection) urlConnection).getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP || responseCode == HttpURLConnection.HTTP_MOVED_PERM
+        if (responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+                || responseCode == HttpURLConnection.HTTP_MOVED_PERM
                 || responseCode == HttpURLConnection.HTTP_SEE_OTHER) {
             String newLocation = urlConnection.getHeaderField("Location");
             if (StringUtils.isNotEmpty(newLocation)) {
@@ -582,11 +584,10 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
             }
         }
 
-        try (InputStream is = urlConnection.getInputStream();) {
+        try (InputStream is = urlConnection.getInputStream(); ) {
             FileUtils.copyInputStreamToFile(is, dpFile);
             return dpFile;
         }
-
     }
 
     private File getFileFromFilesystem(URL url) {

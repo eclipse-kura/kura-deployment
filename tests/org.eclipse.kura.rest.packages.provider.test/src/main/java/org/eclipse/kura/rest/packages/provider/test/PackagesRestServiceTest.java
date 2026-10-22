@@ -24,6 +24,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -37,7 +41,6 @@ import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Objects;
-
 import org.eclipse.kura.core.testutil.requesthandler.AbstractRequestHandlerTest;
 import org.eclipse.kura.core.testutil.requesthandler.RestTransport;
 import org.eclipse.kura.core.testutil.requesthandler.Transport;
@@ -63,11 +66,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.deploymentadmin.DeploymentPackage;
-
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.client.WebTarget;
-import jakarta.ws.rs.core.Response;
 
 @RunWith(Parameterized.class)
 public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
@@ -197,7 +195,9 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
     @Test
     public void getMarketplacePackageDescriptorShouldFailWithDeploymentAgentServiceThrowing() {
         givenDeploymentAgentServiceThrowsExceptionOnGetMarketplacePackageDescriptor();
-        whenRequestIsPerformed(new MethodSpec("PUT"), "/_packageDescriptor",
+        whenRequestIsPerformed(
+                new MethodSpec("PUT"),
+                "/_packageDescriptor",
                 "{'url':'https://marketplace.eclipse.org/marketplace-client-intro?mpc_install=42'}");
 
         thenNoExceptionOccurred();
@@ -206,7 +206,9 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
 
     @Test
     public void getMarketplacePackageDescriptorShouldFailWithWrongUrl() {
-        whenRequestIsPerformed(new MethodSpec("PUT"), "/_packageDescriptor",
+        whenRequestIsPerformed(
+                new MethodSpec("PUT"),
+                "/_packageDescriptor",
                 "{'url':'https://marketplace.ellipse.org/marketplace-client-intro?mpc_install=69'}");
 
         thenNoExceptionOccurred();
@@ -217,10 +219,18 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
     @Test
     public void getMarketplacePackageDescriptorShouldWork() {
         givenDeploymentAgentServiceReturnsMarketplacePackageDescriptor(MarketplacePackageDescriptor.builder()
-                .nodeId("testNodeId").url("testUrl").dpUrl("testDpUrl2").minKuraVersion("1.1.0").maxKuraVersion("5.3.0")
-                .currentKuraVersion("5.4.0").isCompatible(true).build());
+                .nodeId("testNodeId")
+                .url("testUrl")
+                .dpUrl("testDpUrl2")
+                .minKuraVersion("1.1.0")
+                .maxKuraVersion("5.3.0")
+                .currentKuraVersion("5.4.0")
+                .isCompatible(true)
+                .build());
 
-        whenRequestIsPerformed(new MethodSpec("PUT"), "/_packageDescriptor",
+        whenRequestIsPerformed(
+                new MethodSpec("PUT"),
+                "/_packageDescriptor",
                 "{'url':'https://marketplace.eclipse.org/marketplace-client-intro?mpc_install=70'}");
 
         thenRequestSucceeds();
@@ -248,7 +258,6 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
         } catch (Exception e) {
             fail();
         }
-
     }
 
     @After
@@ -271,14 +280,14 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
         deploymentServiceProperties.put("service.ranking", Integer.MIN_VALUE);
         deploymentServiceProperties.put("kura.service.pid", "mockDeploymentService");
 
-        BundleContext packagesRestServiceContext = FrameworkUtil.getBundle(PackagesRestServiceTest.class)
-                .getBundleContext();
-        packagesRestServiceContext.registerService(DeploymentAgentService.class, deploymentAgentService,
-                deploymentServiceProperties);
+        BundleContext packagesRestServiceContext =
+                FrameworkUtil.getBundle(PackagesRestServiceTest.class).getBundleContext();
+        packagesRestServiceContext.registerService(
+                DeploymentAgentService.class, deploymentAgentService, deploymentServiceProperties);
 
         // Inject mock deployment admin
-        final ServiceReference<DeploymentRestService> deploymentRestServiceRef = packagesRestServiceContext
-                .getServiceReference(DeploymentRestService.class);
+        final ServiceReference<DeploymentRestService> deploymentRestServiceRef =
+                packagesRestServiceContext.getServiceReference(DeploymentRestService.class);
         if (Objects.isNull(deploymentRestServiceRef)) {
             throw new IllegalStateException("Unable to find instance of: " + DeploymentRestService.class.getName());
         }
@@ -312,7 +321,8 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
     }
 
     private void givenAnUninstallationRequestWasAlreadyIssuedFor(String packageName) {
-        when(deploymentAgentService.isUninstallingDeploymentPackage(packageName)).thenReturn(true);
+        when(deploymentAgentService.isUninstallingDeploymentPackage(packageName))
+                .thenReturn(true);
     }
 
     private void givenMockTemporaryFileAt(String path) {
@@ -325,20 +335,26 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
 
     private void givenDeploymentAgentServiceReturnsMarketplacePackageDescriptor(
             MarketplacePackageDescriptor descriptor) {
-        when(deploymentAgentService.getMarketplacePackageDescriptor(anyString())).thenReturn(descriptor);
+        when(deploymentAgentService.getMarketplacePackageDescriptor(anyString()))
+                .thenReturn(descriptor);
     }
 
     private void givenDeploymentAgentServiceThrowsExceptionOnGetMarketplacePackageDescriptor() {
-        when(deploymentAgentService.getMarketplacePackageDescriptor(anyString())).thenThrow(new RuntimeException());
+        when(deploymentAgentService.getMarketplacePackageDescriptor(anyString()))
+                .thenThrow(new RuntimeException());
     }
 
     /*
      * WHEN
      */
     private void whenUploadIsPerformedWith(String filePath) {
-        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder().credentials(USERNAME, PASSWORD)
+        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basicBuilder()
+                .credentials(USERNAME, PASSWORD)
                 .build();
-        final Client client = new JerseyClientBuilder().register(MultiPartFeature.class).register(feature).build();
+        final Client client = new JerseyClientBuilder()
+                .register(MultiPartFeature.class)
+                .register(feature)
+                .build();
 
         FormDataMultiPart formDataMultiPart = new FormDataMultiPart();
         final FileDataBodyPart filePart = new FileDataBodyPart("file", new File(filePath));
@@ -399,7 +415,8 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
             StringWriter sw = new StringWriter();
             this.occurredException.printStackTrace(new PrintWriter(sw));
 
-            errorMessage = String.format("No exception expected, \"%s\" found. Caused by: %s",
+            errorMessage = String.format(
+                    "No exception expected, \"%s\" found. Caused by: %s",
                     this.occurredException.getClass().getName(), sw.toString());
         }
 
@@ -412,7 +429,8 @@ public class PackagesRestServiceTest extends AbstractRequestHandlerTest {
 
         try {
             verify(deploymentAgentService, times(1))
-                    .installDeploymentPackageAsync(startsWith(localPath.toUri().toURL().toString()));
+                    .installDeploymentPackageAsync(
+                            startsWith(localPath.toUri().toURL().toString()));
         } catch (Exception e) {
             fail();
         }

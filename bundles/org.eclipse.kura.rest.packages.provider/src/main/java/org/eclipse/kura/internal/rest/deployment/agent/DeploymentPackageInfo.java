@@ -29,5 +29,4 @@ public class DeploymentPackageInfo {
     public String getVersion() {
         return this.version;
     }
-
 }

@@ -25,6 +25,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.EntityPart;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.deployment.agent.DeploymentAgentService;
@@ -52,9 +53,6 @@ import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.deploymentadmin.DeploymentPackage;
 import org.osgi.service.useradmin.Role;
 import org.osgi.service.useradmin.UserAdmin;
-
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.EntityPart;
 
 public class DeploymentRestServiceUnitTest {
 
@@ -264,34 +262,58 @@ public class DeploymentRestServiceUnitTest {
     public void getMarketplacePackageDescriptorWorksWithUrl() throws Exception {
         givenDeploymentRestService();
         givenDeploymentAgentServiceReturnsMarketplacePackageDescriptor(MarketplacePackageDescriptor.builder()
-                .nodeId("testNodeId").url("testUrl").dpUrl("testDpUrl").minKuraVersion("1.0.0").maxKuraVersion("2.0.0")
-                .currentKuraVersion("1.0.0").isCompatible(true).build());
+                .nodeId("testNodeId")
+                .url("testUrl")
+                .dpUrl("testDpUrl")
+                .minKuraVersion("1.0.0")
+                .maxKuraVersion("2.0.0")
+                .currentKuraVersion("1.0.0")
+                .isCompatible(true)
+                .build());
 
         whenGetMarketplacePackageDescriptorIsCalledFor(
                 "https://marketplace.eclipse.org/marketplace-client-intro?mpc_install=55535");
 
         thenNoExceptionOccurred();
         thenDeploymentAgentServiceIsCalledWithURL("https://marketplace.eclipse.org/node/55535/api/p");
-        thenResultingPackageDescriptorEquals(MarketplacePackageDescriptor.builder().nodeId("testNodeId").url("testUrl")
-                .dpUrl("testDpUrl").minKuraVersion("1.0.0").maxKuraVersion("2.0.0").currentKuraVersion("1.0.0")
-                .isCompatible(true).build());
+        thenResultingPackageDescriptorEquals(MarketplacePackageDescriptor.builder()
+                .nodeId("testNodeId")
+                .url("testUrl")
+                .dpUrl("testDpUrl")
+                .minKuraVersion("1.0.0")
+                .maxKuraVersion("2.0.0")
+                .currentKuraVersion("1.0.0")
+                .isCompatible(true)
+                .build());
     }
 
     @Test
     public void getMarketplacePackageDescriptorWorksWithHTTPUrl() throws Exception {
         givenDeploymentRestService();
         givenDeploymentAgentServiceReturnsMarketplacePackageDescriptor(MarketplacePackageDescriptor.builder()
-                .nodeId("testNodeId").url("testUrl").dpUrl("testDpUrl2").minKuraVersion("1.1.0").maxKuraVersion("5.4.0")
-                .currentKuraVersion("5.4.0").isCompatible(true).build());
+                .nodeId("testNodeId")
+                .url("testUrl")
+                .dpUrl("testDpUrl2")
+                .minKuraVersion("1.1.0")
+                .maxKuraVersion("5.4.0")
+                .currentKuraVersion("5.4.0")
+                .isCompatible(true)
+                .build());
 
         whenGetMarketplacePackageDescriptorIsCalledFor(
                 "http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=69");
 
         thenNoExceptionOccurred();
         thenDeploymentAgentServiceIsCalledWithURL("https://marketplace.eclipse.org/node/69/api/p");
-        thenResultingPackageDescriptorEquals(MarketplacePackageDescriptor.builder().nodeId("testNodeId").url("testUrl")
-                .dpUrl("testDpUrl2").minKuraVersion("1.1.0").maxKuraVersion("5.4.0").currentKuraVersion("5.4.0")
-                .isCompatible(true).build());
+        thenResultingPackageDescriptorEquals(MarketplacePackageDescriptor.builder()
+                .nodeId("testNodeId")
+                .url("testUrl")
+                .dpUrl("testDpUrl2")
+                .minKuraVersion("1.1.0")
+                .maxKuraVersion("5.4.0")
+                .currentKuraVersion("5.4.0")
+                .isCompatible(true)
+                .build());
     }
 
     /*
@@ -321,16 +343,19 @@ public class DeploymentRestServiceUnitTest {
     }
 
     private void givenAnUninstallationRequestWasAlreadyIssuedFor(String name, boolean alreadyIssued) {
-        when(this.mockDeploymentAgentService.isUninstallingDeploymentPackage(name)).thenReturn(alreadyIssued);
+        when(this.mockDeploymentAgentService.isUninstallingDeploymentPackage(name))
+                .thenReturn(alreadyIssued);
     }
 
     private void givenDeploymentAgentServiceThrowsExceptionOnUninstall() throws Exception {
-        doThrow(new KuraException(KuraErrorCode.BAD_REQUEST)).when(this.mockDeploymentAgentService)
+        doThrow(new KuraException(KuraErrorCode.BAD_REQUEST))
+                .when(this.mockDeploymentAgentService)
                 .uninstallDeploymentPackageAsync(any());
     }
 
     private void givenDeploymentAgentServiceThrowsExceptionOnInstall() throws Exception {
-        doThrow(new KuraException(KuraErrorCode.BAD_REQUEST)).when(this.mockDeploymentAgentService)
+        doThrow(new KuraException(KuraErrorCode.BAD_REQUEST))
+                .when(this.mockDeploymentAgentService)
                 .installDeploymentPackageAsync(any());
     }
 
@@ -348,11 +373,13 @@ public class DeploymentRestServiceUnitTest {
 
     private void givenDeploymentAgentServiceReturnsMarketplacePackageDescriptor(
             MarketplacePackageDescriptor descriptorToBeReturned) {
-        when(this.mockDeploymentAgentService.getMarketplacePackageDescriptor(any())).thenReturn(descriptorToBeReturned);
+        when(this.mockDeploymentAgentService.getMarketplacePackageDescriptor(any()))
+                .thenReturn(descriptorToBeReturned);
     }
 
     private void givenDeploymentAgentServiceThrowsExceptionOnGetMarketplacePackageDescriptor() {
-        when(this.mockDeploymentAgentService.getMarketplacePackageDescriptor(any())).thenThrow(new RuntimeException());
+        when(this.mockDeploymentAgentService.getMarketplacePackageDescriptor(any()))
+                .thenThrow(new RuntimeException());
     }
 
     /*
@@ -385,8 +412,8 @@ public class DeploymentRestServiceUnitTest {
 
     private void whenInstallUploadedDeploymentPackageIsCalledWith(EntityPart entityPart, InputStream mockInputStream) {
         try {
-            this.resultingDeploymentRequestStatus = this.deploymentRestService
-                    .installUploadedDeploymentPackage(entityPart, mockInputStream);
+            this.resultingDeploymentRequestStatus =
+                    this.deploymentRestService.installUploadedDeploymentPackage(entityPart, mockInputStream);
         } catch (Exception e) {
             this.occurredException = e;
         }
@@ -394,8 +421,8 @@ public class DeploymentRestServiceUnitTest {
 
     private void whenGetMarketplacePackageDescriptorIsCalledFor(String url) {
         try {
-            this.resultingMarketplacePackageDescriptor = this.deploymentRestService
-                    .getMarketplacePackageDescriptor(new DescriptorRequest(url));
+            this.resultingMarketplacePackageDescriptor =
+                    this.deploymentRestService.getMarketplacePackageDescriptor(new DescriptorRequest(url));
         } catch (Exception e) {
             this.occurredException = e;
         }
@@ -411,7 +438,8 @@ public class DeploymentRestServiceUnitTest {
             StringWriter sw = new StringWriter();
             this.occurredException.printStackTrace(new PrintWriter(sw));
 
-            errorMessage = String.format("No exception expected, \"%s\" found. Caused by: %s",
+            errorMessage = String.format(
+                    "No exception expected, \"%s\" found. Caused by: %s",
                     this.occurredException.getClass().getName(), sw.toString());
         }
 
@@ -420,7 +448,8 @@ public class DeploymentRestServiceUnitTest {
 
     private <E extends Exception> void thenExceptionOccurred(Class<E> expectedException) {
         assertNotNull(this.occurredException);
-        assertEquals(expectedException.getName(), this.occurredException.getClass().getName());
+        assertEquals(
+                expectedException.getName(), this.occurredException.getClass().getName());
     }
 
     private void thenDeploymentRequestStatusIs(DeploymentRequestStatus expectedResponse) {
@@ -462,7 +491,8 @@ public class DeploymentRestServiceUnitTest {
         final Path localPath = Paths.get(localUri);
 
         verify(this.mockDeploymentAgentService, times(1))
-                .installDeploymentPackageAsync(startsWith(localPath.toUri().toURL().toString()));
+                .installDeploymentPackageAsync(
+                        startsWith(localPath.toUri().toURL().toString()));
     }
 
     private void thenDeploymentAgentServiceIsNeverCalledToInstallDeploymentPackage() throws Exception {
@@ -480,5 +510,4 @@ public class DeploymentRestServiceUnitTest {
     private void thenDeploymentAgentServiceIsCalledWithURL(String expectedUrl) {
         verify(this.mockDeploymentAgentService, times(1)).getMarketplacePackageDescriptor(expectedUrl);
     }
-
 }

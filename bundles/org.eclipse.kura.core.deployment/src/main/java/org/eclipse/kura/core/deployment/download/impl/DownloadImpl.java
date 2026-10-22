@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2020 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.concurrent.CancellationException;
-
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.core.deployment.CloudDeploymentHandlerV2;
@@ -214,14 +213,18 @@ public class DownloadImpl implements ProgressListener {
                 // these things should be checked beforehand, so that hash() has a chance to
                 // succeed
                 if (hashAlgorithm == null || "".equals(hashAlgorithm) || hashValue == null || "".equals(hashValue)) {
-                    throw new KuraException(KuraErrorCode.INTERNAL_ERROR, null,
+                    throw new KuraException(
+                            KuraErrorCode.INTERNAL_ERROR,
+                            null,
                             "Failed to verify checksum with empty algorithm: " + hashAlgorithm);
                 }
 
                 String checksum = HashUtil.hash(hashAlgorithm, dpFile);
 
                 if (checksum == null || !checksum.equals(hashValue)) {
-                    throw new KuraException(KuraErrorCode.INTERNAL_ERROR, null,
+                    throw new KuraException(
+                            KuraErrorCode.INTERNAL_ERROR,
+                            null,
                             "Failed to verify checksum with algorithm: " + hashAlgorithm);
                 }
             } catch (Exception e) {
@@ -232,13 +235,19 @@ public class DownloadImpl implements ProgressListener {
     }
 
     // Synchronous messages
-    public static void downloadInProgressSyncMessage(KuraResponsePayload respPayload,
-            DownloadCountingOutputStream downloadHelper, DeploymentPackageDownloadOptions downloadOptions) {
+    public static void downloadInProgressSyncMessage(
+            KuraResponsePayload respPayload,
+            DownloadCountingOutputStream downloadHelper,
+            DeploymentPackageDownloadOptions downloadOptions) {
         respPayload.setTimestamp(new Date());
-        respPayload.addMetric(KuraNotifyPayload.METRIC_TRANSFER_SIZE, downloadHelper.getTotalBytes().intValue());
-        respPayload.addMetric(KuraNotifyPayload.METRIC_TRANSFER_PROGRESS,
+        respPayload.addMetric(
+                KuraNotifyPayload.METRIC_TRANSFER_SIZE,
+                downloadHelper.getTotalBytes().intValue());
+        respPayload.addMetric(
+                KuraNotifyPayload.METRIC_TRANSFER_PROGRESS,
                 downloadHelper.getDownloadTransferProgressPercentage().intValue());
-        respPayload.addMetric(KuraNotifyPayload.METRIC_TRANSFER_STATUS,
+        respPayload.addMetric(
+                KuraNotifyPayload.METRIC_TRANSFER_STATUS,
                 downloadHelper.getDownloadTransferStatus().getStatusString());
         respPayload.addMetric(KuraNotifyPayload.METRIC_JOB_ID, downloadOptions.getJobId());
     }
@@ -268,10 +277,11 @@ public class DownloadImpl implements ProgressListener {
         notify.setTransferProgress(0);
         notify.setTransferStatus(DownloadStatus.FAILED.getStatusString());
         notify.setJobId(this.options.getJobId());
-        notify.setErrorMessage(e == null ? "Error during download process and verification!" : e.getMessage()); // message
-                                                                                                                // to
-                                                                                                                // get
-                                                                                                                // cause
+        notify.setErrorMessage(
+                e == null ? "Error during download process and verification!" : e.getMessage()); // message
+        // to
+        // get
+        // cause
         notify.setTransferIndex(downloadIndex);
 
         this.callback.publishMessage(this.options, notify, RESOURCE_DOWNLOAD);
@@ -280,8 +290,11 @@ public class DownloadImpl implements ProgressListener {
     private File getDpVerifierFile(DeploymentPackageInstallOptions options) {
 
         String shName = FileUtilities.getFileName(options.getDpName(), options.getDpVersion(), ".sh_verifier.sh", "-");
-        String packageFilename = new StringBuilder().append(this.verificationDirectory).append(File.separator)
-                .append(shName).toString();
+        String packageFilename = new StringBuilder()
+                .append(this.verificationDirectory)
+                .append(File.separator)
+                .append(shName)
+                .toString();
 
         return new File(packageFilename);
     }

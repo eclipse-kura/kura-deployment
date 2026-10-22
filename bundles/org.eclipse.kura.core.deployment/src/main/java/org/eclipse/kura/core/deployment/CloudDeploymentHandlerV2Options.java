@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
@@ -17,12 +17,12 @@ import java.util.Map;
 
 public class CloudDeploymentHandlerV2Options {
 
-    private final ConfigurationProperty<String> PROPERTY_DOWNLOADS_DIRECTORY = new ConfigurationProperty<>(
-            "downloads.directory", "/tmp");
-    private final ConfigurationProperty<String> PROPERTY_VERIFICATION_DIRECTORY = new ConfigurationProperty<>(
-            "verification.directory", "/home/root");
-    private final ConfigurationProperty<String> PROPERTY_HOOK_ASSOCIATIONS = new ConfigurationProperty<>(
-            "deployment.hook.associations", "");
+    private final ConfigurationProperty<String> PROPERTY_DOWNLOADS_DIRECTORY =
+            new ConfigurationProperty<>("downloads.directory", "/tmp");
+    private final ConfigurationProperty<String> PROPERTY_VERIFICATION_DIRECTORY =
+            new ConfigurationProperty<>("verification.directory", "/home/root");
+    private final ConfigurationProperty<String> PROPERTY_HOOK_ASSOCIATIONS =
+            new ConfigurationProperty<>("deployment.hook.associations", "");
 
     private final String downloadsDirectory;
     private final String verificationDirectory;
@@ -38,7 +38,8 @@ public class CloudDeploymentHandlerV2Options {
         }
         isDirectoryValid = isDirectoryValid && downloadsDirectory.isDirectory();
 
-        this.downloadsDirectory = isDirectoryValid ? downloadsDirectory.getAbsolutePath()
+        this.downloadsDirectory = isDirectoryValid
+                ? downloadsDirectory.getAbsolutePath()
                 : this.PROPERTY_DOWNLOADS_DIRECTORY.defaultValue;
 
         this.verificationDirectory = this.PROPERTY_VERIFICATION_DIRECTORY.get(properties);
@@ -75,5 +76,4 @@ public class CloudDeploymentHandlerV2Options {
             return this.defaultValue;
         }
     }
-
 }

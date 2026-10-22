@@ -1,16 +1,15 @@
 /*******************************************************************************
  * Copyright (c) 2011, 2020 Eurotech and/or its affiliates and others
- * 
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
-
 package org.eclipse.kura.core.deployment.install;
 
 import java.io.IOException;
@@ -19,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.KuraInvalidMessageException;
@@ -51,8 +49,8 @@ public class DeploymentPackageInstallOptions extends DeploymentPackageOptions {
         super(dpName, dpVersion);
     }
 
-    public DeploymentPackageInstallOptions(KuraPayload request, DeploymentHookManager hookManager,
-            String downloadDirectory) throws KuraException {
+    public DeploymentPackageInstallOptions(
+            KuraPayload request, DeploymentHookManager hookManager, String downloadDirectory) throws KuraException {
         super(null, null);
 
         setDownloadDirectory(downloadDirectory);
@@ -168,8 +166,8 @@ public class DeploymentPackageInstallOptions extends DeploymentPackageOptions {
         if (metric != null) {
             setRequestType((String) metric);
             setDeploymentHook(hookManager.getHook(requestType));
-            setHookRequestContext(
-                    new RequestContext(DownloadFileUtilities.getDpDownloadFile(this).getAbsolutePath(), requestType));
+            setHookRequestContext(new RequestContext(
+                    DownloadFileUtilities.getDpDownloadFile(this).getAbsolutePath(), requestType));
         } else {
             setDeploymentHook(null);
         }
@@ -182,5 +180,4 @@ public class DeploymentPackageInstallOptions extends DeploymentPackageOptions {
                     .collect(Collectors.toMap(e -> e.getKey().toString(), e -> e.getValue())));
         }
     }
-
 }
