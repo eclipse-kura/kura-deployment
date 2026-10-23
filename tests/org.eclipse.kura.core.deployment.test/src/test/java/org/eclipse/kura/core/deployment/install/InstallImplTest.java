@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2022 Eurotech and/or its affiliates and others
- * 
+ * Copyright (c) 2018, 2026 Eurotech and/or its affiliates and others
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *  3 PORT d.o.o.
@@ -31,7 +31,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
-
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.cloudconnection.publisher.CloudNotificationPublisher;
 import org.eclipse.kura.core.deployment.CloudDeploymentHandlerV2;
@@ -115,24 +114,25 @@ public class InstallImplTest {
 
         doAnswer(new Answer<Object>() {
 
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                KuraInstallPayload kp = (KuraInstallPayload) arguments[1];
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] arguments = invocation.getArguments();
+                        KuraInstallPayload kp = (KuraInstallPayload) arguments[1];
 
-                assertEquals("", clientId, kp.getClientId());
-                assertEquals("", InstallStatus.COMPLETED.getStatusString(), kp.getInstallStatus());
-                assertEquals("", 100, kp.getInstallProgress());
-                assertEquals("", jobid, kp.getJobId().longValue());
+                        assertEquals("", clientId, kp.getClientId());
+                        assertEquals("", InstallStatus.COMPLETED.getStatusString(), kp.getInstallStatus());
+                        assertEquals("", 100, kp.getInstallProgress());
+                        assertEquals("", jobid, kp.getJobId().longValue());
 
-                return null;
-            }
-        }).when(callbackMock).publishMessage(eq(options), Mockito.any(), eq(InstallImpl.RESOURCE_INSTALL));
+                        return null;
+                    }
+                })
+                .when(callbackMock)
+                .publishMessage(eq(options), Mockito.any(), eq(InstallImpl.RESOURCE_INSTALL));
 
         ii.installDp(options, dpFile);
 
-        verify(callbackMock, times(1)).publishMessage(eq(options), Mockito.any(),
-                eq(InstallImpl.RESOURCE_INSTALL));
+        verify(callbackMock, times(1)).publishMessage(eq(options), Mockito.any(), eq(InstallImpl.RESOURCE_INSTALL));
     }
 
     @Test
@@ -167,25 +167,26 @@ public class InstallImplTest {
 
         doAnswer(new Answer<Object>() {
 
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                KuraInstallPayload kp = (KuraInstallPayload) arguments[1];
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] arguments = invocation.getArguments();
+                        KuraInstallPayload kp = (KuraInstallPayload) arguments[1];
 
-                assertEquals("", clientId, kp.getClientId());
-                assertEquals("", 0, kp.getInstallProgress());
-                assertEquals("", InstallStatus.FAILED.getStatusString(), kp.getInstallStatus());
-                assertEquals("", jobid, kp.getJobId().longValue());
-                assertEquals("", "test", kp.getErrorMessage());
+                        assertEquals("", clientId, kp.getClientId());
+                        assertEquals("", 0, kp.getInstallProgress());
+                        assertEquals("", InstallStatus.FAILED.getStatusString(), kp.getInstallStatus());
+                        assertEquals("", jobid, kp.getJobId().longValue());
+                        assertEquals("", "test", kp.getErrorMessage());
 
-                return null;
-            }
-        }).when(callbackMock).publishMessage(eq(options), Mockito.any(), eq(InstallImpl.RESOURCE_INSTALL));
+                        return null;
+                    }
+                })
+                .when(callbackMock)
+                .publishMessage(eq(options), Mockito.any(), eq(InstallImpl.RESOURCE_INSTALL));
 
         ii.installDp(options, dpFile);
 
-        verify(callbackMock, times(1)).publishMessage(eq(options), Mockito.any(),
-                eq(InstallImpl.RESOURCE_INSTALL));
+        verify(callbackMock, times(1)).publishMessage(eq(options), Mockito.any(), eq(InstallImpl.RESOURCE_INSTALL));
 
         veriDir.delete();
         persDir.delete();
@@ -299,7 +300,8 @@ public class InstallImplTest {
         assertNotNull(respPayload.getTimestamp());
         assertEquals(dpName, respPayload.getMetric(KuraInstallPayload.METRIC_DP_NAME));
         assertEquals(dpVersion, respPayload.getMetric(KuraInstallPayload.METRIC_DP_VERSION));
-        assertEquals(InstallStatus.IN_PROGRESS.getStatusString(),
+        assertEquals(
+                InstallStatus.IN_PROGRESS.getStatusString(),
                 respPayload.getMetric(KuraInstallPayload.METRIC_INSTALL_STATUS));
     }
 
@@ -320,8 +322,8 @@ public class InstallImplTest {
         ii.installIdleSyncMessage(respPayload);
 
         assertNotNull(respPayload.getTimestamp());
-        assertEquals(InstallStatus.IDLE.getStatusString(),
-                respPayload.getMetric(KuraInstallPayload.METRIC_INSTALL_STATUS));
+        assertEquals(
+                InstallStatus.IDLE.getStatusString(), respPayload.getMetric(KuraInstallPayload.METRIC_INSTALL_STATUS));
     }
 
     @Test
@@ -371,27 +373,28 @@ public class InstallImplTest {
 
         doAnswer(new Answer<Object>() {
 
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                KuraInstallPayload kp = (KuraInstallPayload) arguments[1];
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] arguments = invocation.getArguments();
+                        KuraInstallPayload kp = (KuraInstallPayload) arguments[1];
 
-                assertEquals("", "CLIENT_ID", kp.getClientId());
-                assertEquals("", 100, kp.getInstallProgress());
-                assertEquals("", InstallStatus.COMPLETED.getStatusString(), kp.getInstallStatus());
-                assertEquals("", 1234, kp.getJobId().longValue());
-                assertEquals("", "test_script.sh", kp.getMetric(KuraInstallPayload.METRIC_DP_NAME));
+                        assertEquals("", "CLIENT_ID", kp.getClientId());
+                        assertEquals("", 100, kp.getInstallProgress());
+                        assertEquals("", InstallStatus.COMPLETED.getStatusString(), kp.getInstallStatus());
+                        assertEquals("", 1234, kp.getJobId().longValue());
+                        assertEquals("", "test_script.sh", kp.getMetric(KuraInstallPayload.METRIC_DP_NAME));
 
-                return null;
-            }
-        }).when(callbackMock).publishMessage(Mockito.any(), Mockito.any(),
-                eq(InstallImpl.RESOURCE_INSTALL));
+                        return null;
+                    }
+                })
+                .when(callbackMock)
+                .publishMessage(Mockito.any(), Mockito.any(), eq(InstallImpl.RESOURCE_INSTALL));
 
         CloudNotificationPublisher notificationPublisher = mock(CloudNotificationPublisher.class);
         when(notificationPublisher.publish(any())).thenReturn("12345");
 
-        ii.sendInstallConfirmations("org.eclipse.kura.cloud.publisher.CloudNotificationPublisher",
-                notificationPublisher);
+        ii.sendInstallConfirmations(
+                "org.eclipse.kura.cloud.publisher.CloudNotificationPublisher", notificationPublisher);
 
         assertFalse("File should have been deleted.", f.exists());
         assertTrue("File should not have been deleted.", f1.exists());
@@ -447,27 +450,28 @@ public class InstallImplTest {
 
         doAnswer(new Answer<Object>() {
 
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                KuraInstallPayload kp = (KuraInstallPayload) arguments[1];
+                    @Override
+                    public Object answer(InvocationOnMock invocation) throws Throwable {
+                        Object[] arguments = invocation.getArguments();
+                        KuraInstallPayload kp = (KuraInstallPayload) arguments[1];
 
-                assertEquals("", "CLIENT_ID", kp.getClientId());
-                assertEquals("", 0, kp.getInstallProgress());
-                assertEquals("", InstallStatus.FAILED.getStatusString(), kp.getInstallStatus());
-                assertEquals("", 1234, kp.getJobId().longValue());
-                assertEquals("", "test_scriptError.sh", kp.getMetric(KuraInstallPayload.METRIC_DP_NAME));
+                        assertEquals("", "CLIENT_ID", kp.getClientId());
+                        assertEquals("", 0, kp.getInstallProgress());
+                        assertEquals("", InstallStatus.FAILED.getStatusString(), kp.getInstallStatus());
+                        assertEquals("", 1234, kp.getJobId().longValue());
+                        assertEquals("", "test_scriptError.sh", kp.getMetric(KuraInstallPayload.METRIC_DP_NAME));
 
-                return null;
-            }
-        }).when(callbackMock).publishMessage(Mockito.any(), Mockito.any(),
-                eq(InstallImpl.RESOURCE_INSTALL));
+                        return null;
+                    }
+                })
+                .when(callbackMock)
+                .publishMessage(Mockito.any(), Mockito.any(), eq(InstallImpl.RESOURCE_INSTALL));
 
         CloudNotificationPublisher notificationPublisher = mock(CloudNotificationPublisher.class);
         when(notificationPublisher.publish(any())).thenReturn("12345");
 
-        ii.sendInstallConfirmations("org.eclipse.kura.cloud.publisher.CloudNotificationPublisher",
-                notificationPublisher);
+        ii.sendInstallConfirmations(
+                "org.eclipse.kura.cloud.publisher.CloudNotificationPublisher", notificationPublisher);
 
         assertFalse("File should have been deleted.", f.exists());
         assertFalse("File should have been deleted.", fperf.exists());
@@ -526,5 +530,4 @@ public class InstallImplTest {
         assertEquals(1, p.size());
         assertEquals("testval2", p.getProperty("test2"));
     }
-
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2025 Eurotech and/or its affiliates and others
+ * Copyright (c) 2025, 2026 Eurotech and/or its affiliates and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -37,7 +37,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import org.bouncycastle.asn1.x500.X500Name;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.configuration.ConfigurableComponent;
@@ -85,9 +84,12 @@ public class DownloadImplITTest {
 
     private static SslManagerService sslManagerService;
     private static ConfigurationService configurationService;
+
     @SuppressWarnings("unused")
     private static ConfigurableComponent httpService;
+
     private static CryptoService cryptoService;
+
     @SuppressWarnings("unused")
     private static ConfigurableComponent restService;
 
@@ -149,8 +151,8 @@ public class DownloadImplITTest {
 
     @Test
     public void shouldDownloadFileFromHttpsUrlWithoutHostnameVerificationEnabled() {
-        givenDeploymentPackageDownloadOptions("https://localhost:9993/services/test/download", TEST_FILENAME,
-                DP_VERSION);
+        givenDeploymentPackageDownloadOptions(
+                "https://localhost:9993/services/test/download", TEST_FILENAME, DP_VERSION);
         givenDownloadImpl();
         givenHostnameVerificationInSslManagerService(false);
 
@@ -162,8 +164,8 @@ public class DownloadImplITTest {
 
     @Test
     public void shouldNotDownloadFileFromHttpsUrlWithHostnameVerificationEnabled() {
-        givenDeploymentPackageDownloadOptions("https://localhost:9993/services/test/download", TEST_FILENAME,
-                DP_VERSION);
+        givenDeploymentPackageDownloadOptions(
+                "https://localhost:9993/services/test/download", TEST_FILENAME, DP_VERSION);
         givenDownloadImpl();
         givenHostnameVerificationInSslManagerService(true);
 
@@ -181,8 +183,8 @@ public class DownloadImplITTest {
     }
 
     private void givenDownloadImpl() {
-        this.downloadImpl = new DownloadImpl(this.deploymentPackageDownloadOptions,
-                mock(CloudDeploymentHandlerV2.class));
+        this.downloadImpl =
+                new DownloadImpl(this.deploymentPackageDownloadOptions, mock(CloudDeploymentHandlerV2.class));
         this.downloadImpl.setSslManager(sslManagerService);
     }
 
@@ -190,8 +192,8 @@ public class DownloadImplITTest {
         Map<String, Object> props = new HashMap<>();
         props.put("ssl.hostname.verification", hostnameVerification);
         try {
-            updateComponentConfiguration(configurationService, SSL_MANAGER_SERVICE_PID, props).get(30,
-                    TimeUnit.SECONDS);
+            updateComponentConfiguration(configurationService, SSL_MANAGER_SERVICE_PID, props)
+                    .get(30, TimeUnit.SECONDS);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -221,7 +223,10 @@ public class DownloadImplITTest {
     private void thenDownloadedFileIs(String filename) {
         byte[] expectedContent;
         try {
-            expectedContent = getClass().getClassLoader().getResourceAsStream(TEST_FILENAME).readAllBytes();
+            expectedContent = getClass()
+                    .getClassLoader()
+                    .getResourceAsStream(TEST_FILENAME)
+                    .readAllBytes();
             byte[] downloadedContent = Files.readAllBytes(Path.of(this.tempDir, filename));
             assertArrayEquals(expectedContent, downloadedContent);
         } catch (IOException e) {
@@ -231,28 +236,37 @@ public class DownloadImplITTest {
 
     private static void setupCAAndClientKeystore() throws TestCAException, IOException {
 
-        final TestCA serverCA = new TestCA(
-                CertificateCreationOptions.builder(new X500Name("cn=Server CA, dn=foo.org")).build());
+        final TestCA serverCA = new TestCA(CertificateCreationOptions.builder(new X500Name("cn=Server CA, dn=foo.org"))
+                .build());
 
         final KeyPair serverKeyPair = TestCA.generateKeyPair();
 
         X509Certificate serverCertificate = serverCA.createAndSignCertificate(
-                CertificateCreationOptions.builder(new X500Name("cn=Server Cert, dn=foo.org")).build(), serverKeyPair);
+                CertificateCreationOptions.builder(new X500Name("cn=Server Cert, dn=foo.org"))
+                        .build(),
+                serverKeyPair);
 
-        File serverKeystoreFile = TestCA.writeKeystore(new KeyStore.PrivateKeyEntry(serverKeyPair.getPrivate(),
-                new Certificate[] { serverCertificate, serverCA.getCertificate() }));
+        File serverKeystoreFile = TestCA.writeKeystore(new KeyStore.PrivateKeyEntry(
+                serverKeyPair.getPrivate(), new Certificate[] {serverCertificate, serverCA.getCertificate()}));
 
         File clientKeystoreFile = TestCA.writeKeystore(new KeyStore.TrustedCertificateEntry(serverCertificate));
 
         try {
-            serverKeystore = new TestKeystore(DownloadImplITTest.configurationService, DownloadImplITTest.cryptoService,
-                    SERVER_KEYSTORE_PID, serverKeystoreFile.getAbsolutePath(), DEFAULT_KEYSTORE_PASSWORD);
-            clientKeystore = new TestKeystore(DownloadImplITTest.configurationService, DownloadImplITTest.cryptoService,
-                    CLIENT_KEYSTORE_PID, clientKeystoreFile.getAbsolutePath(), DEFAULT_KEYSTORE_PASSWORD);
+            serverKeystore = new TestKeystore(
+                    DownloadImplITTest.configurationService,
+                    DownloadImplITTest.cryptoService,
+                    SERVER_KEYSTORE_PID,
+                    serverKeystoreFile.getAbsolutePath(),
+                    DEFAULT_KEYSTORE_PASSWORD);
+            clientKeystore = new TestKeystore(
+                    DownloadImplITTest.configurationService,
+                    DownloadImplITTest.cryptoService,
+                    CLIENT_KEYSTORE_PID,
+                    clientKeystoreFile.getAbsolutePath(),
+                    DEFAULT_KEYSTORE_PASSWORD);
         } catch (Exception e) {
             fail(e.getMessage());
         }
-
     }
 
     private static void setupSslManagerService() {
@@ -260,18 +274,17 @@ public class DownloadImplITTest {
         props.put("KeystoreService.target", clientKeystore.getTargetFilter());
         props.put("TruststoreKeystoreService.target", clientKeystore.getTargetFilter());
         try {
-            updateComponentConfiguration(configurationService, SSL_MANAGER_SERVICE_PID, props).get(30,
-                    TimeUnit.SECONDS);
+            updateComponentConfiguration(configurationService, SSL_MANAGER_SERVICE_PID, props)
+                    .get(30, TimeUnit.SECONDS);
         } catch (Exception e) {
             fail(e.getMessage());
         }
-
     }
 
     private static void setupHttpService() {
 
         Map<String, Object> props = new HashMap<>();
-        props.put("https.ports", new Integer[] { HTTPS_PORT });
+        props.put("https.ports", new Integer[] {HTTPS_PORT});
         props.put("KeystoreService.target", serverKeystore.getTargetFilter());
 
         try {
@@ -280,19 +293,17 @@ public class DownloadImplITTest {
         } catch (Exception e) {
             fail(e.getMessage());
         }
-
     }
 
     private static void setupRestService() {
         Map<String, Object> props = new HashMap<>();
-        props.put("allowed.ports", new Integer[] { HTTP_PORT, HTTPS_PORT });
+        props.put("allowed.ports", new Integer[] {HTTP_PORT, HTTPS_PORT});
         try {
             updateComponentConfiguration(DownloadImplITTest.configurationService, REST_SERVICE_PID, props) //
                     .get(30, TimeUnit.SECONDS);
         } catch (Exception e) {
             fail(e.getMessage());
         }
-
     }
 
     private static void awaitDependencies() throws InterruptedException {
@@ -303,13 +314,18 @@ public class DownloadImplITTest {
 
     private static class TestKeystore implements AutoCloseable {
 
-        private static final String FILESYSTEM_KEYSTORE_SERVICE_PID = "org.eclipse.kura.core.keystore.FilesystemKeystoreServiceImpl";
+        private static final String FILESYSTEM_KEYSTORE_SERVICE_PID =
+                "org.eclipse.kura.core.keystore.FilesystemKeystoreServiceImpl";
 
         private final ConfigurationService configSvc;
         private final String pid;
 
-        public TestKeystore(final ConfigurationService configurationService, final CryptoService cryptoService,
-                final String pid, final String keystorePath, String keystorePassword)
+        public TestKeystore(
+                final ConfigurationService configurationService,
+                final CryptoService cryptoService,
+                final String pid,
+                final String keystorePath,
+                String keystorePassword)
                 throws InterruptedException, ExecutionException, TimeoutException, KuraException {
             this.configSvc = configurationService;
             this.pid = pid;
@@ -319,8 +335,13 @@ public class DownloadImplITTest {
             props.put("keystore.path", keystorePath);
             props.put("keystore.password", new String(cryptoService.encryptAes(keystorePassword.toCharArray())));
 
-            ServiceUtil.createFactoryConfiguration(configurationService, ConfigurableComponent.class, pid,
-                    FILESYSTEM_KEYSTORE_SERVICE_PID, props).get(30, TimeUnit.SECONDS);
+            ServiceUtil.createFactoryConfiguration(
+                            configurationService,
+                            ConfigurableComponent.class,
+                            pid,
+                            FILESYSTEM_KEYSTORE_SERVICE_PID,
+                            props)
+                    .get(30, TimeUnit.SECONDS);
         }
 
         String getTargetFilter() {
@@ -331,18 +352,20 @@ public class DownloadImplITTest {
         public void close() throws Exception {
             ServiceUtil.deleteFactoryConfiguration(configSvc, pid).get(30, TimeUnit.SECONDS);
         }
-
     }
 
-    static CompletableFuture<Void> updateComponentConfiguration(final ConfigurationService configurationService,
-            final String pid, final Map<String, Object> properties) throws InvalidSyntaxException {
+    static CompletableFuture<Void> updateComponentConfiguration(
+            final ConfigurationService configurationService, final String pid, final Map<String, Object> properties)
+            throws InvalidSyntaxException {
 
         final CompletableFuture<Void> result = new CompletableFuture<>();
-        final BundleContext context = FrameworkUtil.getBundle(DownloadImpl.class).getBundleContext();
+        final BundleContext context =
+                FrameworkUtil.getBundle(DownloadImpl.class).getBundleContext();
 
         final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-        final ServiceTracker<?, ?> tracker = new ServiceTracker<>(context,
+        final ServiceTracker<?, ?> tracker = new ServiceTracker<>(
+                context,
                 FrameworkUtil.createFilter("(kura.service.pid=" + pid + ")"),
                 new ServiceTrackerCustomizer<Object, Object>() {
 
@@ -351,13 +374,16 @@ public class DownloadImplITTest {
                     @Override
                     public Object addingService(ServiceReference<Object> reference) {
 
-                        task = Optional.of(executor.schedule(() -> {
-                            try {
-                                configurationService.updateConfiguration(pid, properties);
-                            } catch (KuraException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }, 5, TimeUnit.SECONDS));
+                        task = Optional.of(executor.schedule(
+                                () -> {
+                                    try {
+                                        configurationService.updateConfiguration(pid, properties);
+                                    } catch (KuraException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                },
+                                5,
+                                TimeUnit.SECONDS));
 
                         return context.getService(reference);
                     }

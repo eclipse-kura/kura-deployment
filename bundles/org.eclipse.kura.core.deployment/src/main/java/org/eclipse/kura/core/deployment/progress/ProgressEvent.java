@@ -1,20 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 Eurotech and/or its affiliates and others
- * 
+ * Copyright (c) 2011, 2026 Eurotech and/or its affiliates and others
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
-
 package org.eclipse.kura.core.deployment.progress;
 
 import java.util.EventObject;
-
 import org.eclipse.kura.core.deployment.download.DeploymentPackageDownloadOptions;
 
 public class ProgressEvent extends EventObject {
@@ -33,6 +31,7 @@ public class ProgressEvent extends EventObject {
      * Progress in %.
      */
     int transferProgress;
+
     String transferStatus;
     String requesterClientId;
     long jobId;
@@ -42,8 +41,13 @@ public class ProgressEvent extends EventObject {
      */
     int downloadIndex;
 
-    public ProgressEvent(Object source, DeploymentPackageDownloadOptions options, int transferSize,
-            int transferProgress, String trasnferStatus, int downloadIndex) {
+    public ProgressEvent(
+            Object source,
+            DeploymentPackageDownloadOptions options,
+            int transferSize,
+            int transferProgress,
+            String trasnferStatus,
+            int downloadIndex) {
         super(source);
         this.clientId = options.getClientId();
         this.transferSize = transferSize;

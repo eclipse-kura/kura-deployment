@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 Eurotech and/or its affiliates and others
+ * Copyright (c) 2011, 2026 Eurotech and/or its affiliates and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
 import org.apache.commons.io.Charsets;
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
@@ -83,24 +82,26 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
 
         @Override
         public CloudNotificationPublisher addingService(final ServiceReference<CloudNotificationPublisher> reference) {
-            CloudDeploymentHandlerV2.this.cloudNotificationPublisher = CloudDeploymentHandlerV2.this.bundleContext
-                    .getService(reference);
+            CloudDeploymentHandlerV2.this.cloudNotificationPublisher =
+                    CloudDeploymentHandlerV2.this.bundleContext.getService(reference);
             String notificationPublisherPid = (String) reference.getProperty("kura.service.pid");
 
-            CloudDeploymentHandlerV2.this.installImplementation.sendInstallConfirmations(notificationPublisherPid,
-                    CloudDeploymentHandlerV2.this.cloudNotificationPublisher);
+            CloudDeploymentHandlerV2.this.installImplementation.sendInstallConfirmations(
+                    notificationPublisherPid, CloudDeploymentHandlerV2.this.cloudNotificationPublisher);
 
             return CloudDeploymentHandlerV2.this.cloudNotificationPublisher;
         }
 
         @Override
-        public void modifiedService(final ServiceReference<CloudNotificationPublisher> reference,
+        public void modifiedService(
+                final ServiceReference<CloudNotificationPublisher> reference,
                 final CloudNotificationPublisher service) {
             // Not needed
         }
 
         @Override
-        public void removedService(final ServiceReference<CloudNotificationPublisher> reference,
+        public void removedService(
+                final ServiceReference<CloudNotificationPublisher> reference,
                 final CloudNotificationPublisher service) {
             CloudDeploymentHandlerV2.this.cloudNotificationPublisher = null;
         }
@@ -166,7 +167,8 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
 
     private CloudNotificationPublisher cloudNotificationPublisher;
 
-    private ServiceTrackerCustomizer<CloudNotificationPublisher, CloudNotificationPublisher> cloudPublisherTrackerCustomizer;
+    private ServiceTrackerCustomizer<CloudNotificationPublisher, CloudNotificationPublisher>
+            cloudPublisherTrackerCustomizer;
 
     private ServiceTracker<CloudNotificationPublisher, CloudNotificationPublisher> cloudPublisherTracker;
 
@@ -222,7 +224,10 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
         try {
             requestHandlerRegistry.registerRequestHandler(APP_ID, this);
         } catch (KuraException e) {
-            logger.info("Unable to register cloudlet {} in {}", APP_ID, requestHandlerRegistry.getClass().getName());
+            logger.info(
+                    "Unable to register cloudlet {} in {}",
+                    APP_ID,
+                    requestHandlerRegistry.getClass().getName());
         }
     }
 
@@ -230,7 +235,10 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
         try {
             requestHandlerRegistry.unregister(APP_ID);
         } catch (KuraException e) {
-            logger.info("Unable to register cloudlet {} in {}", APP_ID, requestHandlerRegistry.getClass().getName());
+            logger.info(
+                    "Unable to register cloudlet {} in {}",
+                    APP_ID,
+                    requestHandlerRegistry.getClass().getName());
         }
     }
 
@@ -252,8 +260,8 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
         logger.info("Cloud Deployment v2 is starting");
         this.bundleContext = componentContext.getBundleContext();
 
-        CloudDeploymentHandlerOptions options = new CloudDeploymentHandlerOptions(
-                CloudDeploymentHandlerV2.this.systemService.getProperties());
+        CloudDeploymentHandlerOptions options =
+                new CloudDeploymentHandlerOptions(CloudDeploymentHandlerV2.this.systemService.getProperties());
 
         String dpaConfPath = options.getDpaConfigurationFilePath();
         String packagesPath = options.getPackagesPath();
@@ -454,16 +462,16 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
     // ----------------------------------------------------------------
 
     private void initCloudPublisherTracking() {
-        String filterString = String.format("(%s=%s)", Constants.OBJECTCLASS,
-                CloudNotificationPublisher.class.getName());
+        String filterString =
+                String.format("(%s=%s)", Constants.OBJECTCLASS, CloudNotificationPublisher.class.getName());
         Filter filter = null;
         try {
             filter = this.bundleContext.createFilter(filterString);
         } catch (InvalidSyntaxException e) {
             logger.error("Filter setup exception ", e);
         }
-        this.cloudPublisherTracker = new ServiceTracker<>(this.bundleContext, filter,
-                this.cloudPublisherTrackerCustomizer);
+        this.cloudPublisherTracker =
+                new ServiceTracker<>(this.bundleContext, filter, this.cloudPublisherTrackerCustomizer);
         this.cloudPublisherTracker.open();
     }
 
@@ -497,8 +505,8 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
 
         final DeploymentPackageDownloadOptions options;
         try {
-            options = new DeploymentPackageDownloadOptions(request, this.deploymentHookManager,
-                    this.componentOptions.getDownloadsDirectory());
+            options = new DeploymentPackageDownloadOptions(
+                    request, this.deploymentHookManager, this.componentOptions.getDownloadsDirectory());
             options.setClientId(this.dataTransportService.getClientId());
         } catch (Exception ex) {
             logger.info("Malformed download request!");
@@ -603,8 +611,8 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
     private KuraPayload doExecInstall(RequestHandlerContext requestContext, KuraPayload request) throws KuraException {
         final DeploymentPackageInstallOptions options;
         try {
-            options = new DeploymentPackageInstallOptions(request, this.deploymentHookManager,
-                    this.componentOptions.getDownloadsDirectory());
+            options = new DeploymentPackageInstallOptions(
+                    request, this.deploymentHookManager, this.componentOptions.getDownloadsDirectory());
             options.setClientId(this.dataTransportService.getClientId());
         } catch (Exception ex) {
             logger.error("Malformed install request!");
@@ -764,8 +772,8 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
                         } else {
                             bundle.stop();
                         }
-                        logger.info("{} bundle ID {} ({})", start ? "Started" : "Stopped", id,
-                                bundle.getSymbolicName());
+                        logger.info(
+                                "{} bundle ID {} ({})", start ? "Started" : "Stopped", id, bundle.getSymbolicName());
                     } catch (BundleException e) {
                         logger.error("Failed to {} bundle {}: {}", start ? RESOURCE_START : RESOURCE_STOP, id, e);
                         throw new KuraException(KuraErrorCode.BAD_REQUEST);
@@ -806,7 +814,8 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
         for (int i = 0; i < dps.length; i++) {
             DeploymentPackage dp = dps[i];
 
-            SystemDeploymentPackage xdp = new SystemDeploymentPackage(dp.getName(), dp.getVersion().toString());
+            SystemDeploymentPackage xdp =
+                    new SystemDeploymentPackage(dp.getName(), dp.getVersion().toString());
 
             BundleInfo[] bis = dp.getBundleInfos();
             SystemBundle[] axbi = new SystemBundle[bis.length];
@@ -814,7 +823,8 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
             for (int j = 0; j < bis.length; j++) {
 
                 BundleInfo bi = bis[j];
-                SystemBundle xb = new SystemBundle(bi.getSymbolicName(), bi.getVersion().toString());
+                SystemBundle xb =
+                        new SystemBundle(bi.getSymbolicName(), bi.getVersion().toString());
 
                 axbi[j] = xb;
             }
@@ -845,39 +855,40 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
         for (int i = 0; i < bundles.length; i++) {
 
             Bundle bundle = bundles[i];
-            SystemBundle xmlBundle = new SystemBundle(bundle.getSymbolicName(), bundle.getVersion().toString());
+            SystemBundle xmlBundle = new SystemBundle(
+                    bundle.getSymbolicName(), bundle.getVersion().toString());
 
             xmlBundle.setId(bundle.getBundleId());
 
             int state = bundle.getState();
 
             switch (state) {
-            case Bundle.UNINSTALLED:
-                xmlBundle.setState("UNINSTALLED");
-                break;
+                case Bundle.UNINSTALLED:
+                    xmlBundle.setState("UNINSTALLED");
+                    break;
 
-            case Bundle.INSTALLED:
-                xmlBundle.setState("INSTALLED");
-                break;
+                case Bundle.INSTALLED:
+                    xmlBundle.setState("INSTALLED");
+                    break;
 
-            case Bundle.RESOLVED:
-                xmlBundle.setState("RESOLVED");
-                break;
+                case Bundle.RESOLVED:
+                    xmlBundle.setState("RESOLVED");
+                    break;
 
-            case Bundle.STARTING:
-                xmlBundle.setState("STARTING");
-                break;
+                case Bundle.STARTING:
+                    xmlBundle.setState("STARTING");
+                    break;
 
-            case Bundle.STOPPING:
-                xmlBundle.setState("STOPPING");
-                break;
+                case Bundle.STOPPING:
+                    xmlBundle.setState("STOPPING");
+                    break;
 
-            case Bundle.ACTIVE:
-                xmlBundle.setState("ACTIVE");
-                break;
+                case Bundle.ACTIVE:
+                    xmlBundle.setState("ACTIVE");
+                    break;
 
-            default:
-                xmlBundle.setState(String.valueOf(state));
+                default:
+                    xmlBundle.setState(String.valueOf(state));
             }
 
             axb[i] = xmlBundle;
@@ -914,8 +925,8 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
     }
 
     private ServiceReference<Marshaller>[] getXmlMarshallers() {
-        String filterString = String.format("(&(kura.service.pid=%s))",
-                "org.eclipse.kura.xml.marshaller.unmarshaller.provider");
+        String filterString =
+                String.format("(&(kura.service.pid=%s))", "org.eclipse.kura.xml.marshaller.unmarshaller.provider");
         return ServiceUtil.getServiceReferences(this.bundleContext, Marshaller.class, filterString);
     }
 

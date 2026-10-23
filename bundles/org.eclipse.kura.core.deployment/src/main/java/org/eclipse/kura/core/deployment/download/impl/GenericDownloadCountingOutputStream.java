@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 Eurotech and/or its affiliates and others
- * 
+ * Copyright (c) 2011, 2026 Eurotech and/or its affiliates and others
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
@@ -14,7 +14,6 @@ package org.eclipse.kura.core.deployment.download.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import org.apache.commons.io.output.CountingOutputStream;
 import org.eclipse.kura.core.deployment.DownloadStatus;
 import org.eclipse.kura.core.deployment.download.DeploymentPackageDownloadOptions;
@@ -58,8 +57,8 @@ public class GenericDownloadCountingOutputStream extends CountingOutputStream {
     }
 
     public Long getDownloadTransferProgressPercentage() {
-        Long percentage = (long) Math
-                .floor(((Long) getByteCount()).doubleValue() / ((Long) this.totalBytes).doubleValue() * 100);
+        Long percentage =
+                (long) Math.floor(((Long) getByteCount()).doubleValue() / ((Long) this.totalBytes).doubleValue() * 100);
         if (percentage < 0) {
             return (long) 50;
         }
@@ -84,8 +83,8 @@ public class GenericDownloadCountingOutputStream extends CountingOutputStream {
         }
         if (getByteCount() >= this.currentStep * this.propResolution) {
             this.currentStep++;
-            postProgressEvent(this.options.getClientId(), getByteCount(), this.totalBytes, DownloadStatus.IN_PROGRESS,
-                    null);
+            postProgressEvent(
+                    this.options.getClientId(), getByteCount(), this.totalBytes, DownloadStatus.IN_PROGRESS, null);
         }
         try {
             Thread.sleep(this.propBlockDelay);
@@ -94,17 +93,21 @@ public class GenericDownloadCountingOutputStream extends CountingOutputStream {
         }
     }
 
-    protected void postProgressEvent(String clientId, long progress, long total, DownloadStatus status,
-            String errorMessage) {
+    protected void postProgressEvent(
+            String clientId, long progress, long total, DownloadStatus status, String errorMessage) {
         Long perc = getDownloadTransferProgressPercentage();
         this.downloadStatus = status;
-        ProgressEvent pe = new ProgressEvent(this, this.options, ((Long) total).intValue(), perc.intValue(),
-                getDownloadTransferStatus().getStatusString(), this.alreadyDownloaded);
+        ProgressEvent pe = new ProgressEvent(
+                this,
+                this.options,
+                ((Long) total).intValue(),
+                perc.intValue(),
+                getDownloadTransferStatus().getStatusString(),
+                this.alreadyDownloaded);
         if (errorMessage != null) {
             pe.setExceptionMessage(errorMessage);
         }
         this.pl.progressChanged(pe);
-
     }
 
     protected void setResolution(int resolution) {

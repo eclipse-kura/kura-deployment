@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2020 Eurotech and/or its affiliates and others
- * 
+ * Copyright (c) 2017, 2026 Eurotech and/or its affiliates and others
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Map;
-
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.deployment.hook.DeploymentHook;
@@ -32,8 +31,7 @@ public class FileMoveDeploymentHook implements DeploymentHook {
     private static final Logger logger = LoggerFactory.getLogger(FileMoveDeploymentHook.class);
 
     @Override
-    public void preDownload(RequestContext context, Map<String, Object> properties) throws KuraException {
-    }
+    public void preDownload(RequestContext context, Map<String, Object> properties) throws KuraException {}
 
     @Override
     public void postDownload(RequestContext context, Map<String, Object> properties) throws KuraException {
@@ -60,8 +58,8 @@ public class FileMoveDeploymentHook implements DeploymentHook {
                 final String sourceFileName = sourceFile.getName();
                 // DEPLOY-V2 downloaded files always end with the -<version>.dp or -<version>.sh suffixes, remove the
                 // suffix
-                destinationFile = new File(destinationFile,
-                        sourceFileName.substring(0, sourceFileName.lastIndexOf('-')));
+                destinationFile =
+                        new File(destinationFile, sourceFileName.substring(0, sourceFileName.lastIndexOf('-')));
             }
 
             final ArrayList<CopyOption> copyOptions = new ArrayList<>();
@@ -87,7 +85,5 @@ public class FileMoveDeploymentHook implements DeploymentHook {
     }
 
     @Override
-    public void postInstall(RequestContext context, Map<String, Object> properties) throws KuraException {
-    }
-
+    public void postInstall(RequestContext context, Map<String, Object> properties) throws KuraException {}
 }

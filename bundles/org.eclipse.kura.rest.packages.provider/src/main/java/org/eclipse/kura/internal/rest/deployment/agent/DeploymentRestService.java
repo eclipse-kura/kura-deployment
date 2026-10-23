@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023, 2025 Eurotech and/or its affiliates and others
+ * Copyright (c) 2023, 2026 Eurotech and/or its affiliates and others
  *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
@@ -13,33 +13,6 @@
 package org.eclipse.kura.internal.rest.deployment.agent;
 
 import static org.eclipse.kura.rest.deployment.agent.api.Validable.validate;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.regex.Pattern;
-
-import org.apache.commons.io.IOUtils;
-import org.eclipse.kura.deployment.agent.DeploymentAgentService;
-import org.eclipse.kura.deployment.agent.MarketplacePackageDescriptor;
-import org.eclipse.kura.rest.deployment.agent.api.DeploymentRequestStatus;
-import org.eclipse.kura.rest.deployment.agent.api.DescriptorRequest;
-import org.eclipse.kura.rest.deployment.agent.api.InstallRequest;
-import org.osgi.service.deploymentadmin.DeploymentAdmin;
-import org.osgi.service.deploymentadmin.DeploymentPackage;
-import org.osgi.service.useradmin.Role;
-import org.osgi.service.useradmin.UserAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.Consumes;
@@ -55,6 +28,31 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.EntityPart;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.regex.Pattern;
+import org.apache.commons.io.IOUtils;
+import org.eclipse.kura.deployment.agent.DeploymentAgentService;
+import org.eclipse.kura.deployment.agent.MarketplacePackageDescriptor;
+import org.eclipse.kura.rest.deployment.agent.api.DeploymentRequestStatus;
+import org.eclipse.kura.rest.deployment.agent.api.DescriptorRequest;
+import org.eclipse.kura.rest.deployment.agent.api.InstallRequest;
+import org.osgi.service.deploymentadmin.DeploymentAdmin;
+import org.osgi.service.deploymentadmin.DeploymentPackage;
+import org.osgi.service.useradmin.Role;
+import org.osgi.service.useradmin.UserAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Path("/deploy/v2")
 public class DeploymentRestService {
@@ -101,8 +99,8 @@ public class DeploymentRestService {
         List<DeploymentPackageInfo> deploymentPackageInfos = new ArrayList<>();
         List<DeploymentPackage> deploymentPackages = Arrays.asList(this.deploymentAdmin.listDeploymentPackages());
 
-        deploymentPackages.forEach(
-                dp -> deploymentPackageInfos.add(new DeploymentPackageInfo(dp.getName(), dp.getVersion().toString())));
+        deploymentPackages.forEach(dp -> deploymentPackageInfos.add(
+                new DeploymentPackageInfo(dp.getName(), dp.getVersion().toString())));
 
         return deploymentPackageInfos;
     }
@@ -112,7 +110,7 @@ public class DeploymentRestService {
      *
      * Provides the Eclipse Marketplace Package Descriptor information of the
      * deployment package identified by URL passed as query parameter.
-     * 
+     *
      * @param DescriptorRequest
      *
      * @return a list of {@link MarketplacePackageDescriptor}
@@ -128,19 +126,25 @@ public class DeploymentRestService {
         MarketplacePackageDescriptor descriptor;
 
         if (Objects.isNull(url) || url.isEmpty()) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN)
-                    .entity("Missing URL parameter").build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity("Missing URL parameter")
+                    .build());
         }
 
         if (!isEclipseMarketplaceUrl(url)) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN)
-                    .entity("The URL passed as argument does not belong to the Eclipse Marketplace").build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity("The URL passed as argument does not belong to the Eclipse Marketplace")
+                    .build());
         }
 
         final String[] urlStrings = url.split("=");
         if (urlStrings.length != 2 || Objects.isNull(urlStrings[1]) || urlStrings[1].isEmpty()) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN)
-                    .entity("The URL passed as argument does not contain a valid node id").build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity("The URL passed as argument does not contain a valid node id")
+                    .build());
         }
 
         final String descriptorUrl = String.format("https://marketplace.eclipse.org/node/%s/api/p", urlStrings[1]);
@@ -149,15 +153,17 @@ public class DeploymentRestService {
         } catch (Exception e) {
             logger.warn("Error checking package descriptor for {}. Caused by ", url, e);
             throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .type(MediaType.TEXT_PLAIN).entity("Error checking package descriptor for " + url).build());
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity("Error checking package descriptor for " + url)
+                    .build());
         }
 
         return descriptor;
     }
 
     private boolean isEclipseMarketplaceUrl(String url) {
-        final Pattern marketplaceUrlRegexp = Pattern
-                .compile("https?:\\/\\/marketplace.eclipse.org/marketplace-client-intro\\?mpc_install=.*");
+        final Pattern marketplaceUrlRegexp =
+                Pattern.compile("https?:\\/\\/marketplace.eclipse.org/marketplace-client-intro\\?mpc_install=.*");
         return marketplaceUrlRegexp.matcher(url).matches();
     }
 
@@ -189,7 +195,9 @@ public class DeploymentRestService {
             this.deploymentAgentService.installDeploymentPackageAsync(url);
         } catch (Exception e) {
             throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .type(MediaType.TEXT_PLAIN).entity(ERROR_INSTALLING_PACKAGE + url).build());
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(ERROR_INSTALLING_PACKAGE + url)
+                    .build());
         }
 
         return DeploymentRequestStatus.REQUEST_RECEIVED;
@@ -211,26 +219,30 @@ public class DeploymentRestService {
     @Path("/_upload")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public DeploymentRequestStatus installUploadedDeploymentPackage(@FormParam("file") EntityPart part,
-            @FormParam("file") InputStream uploadedInputStream) {
+    public DeploymentRequestStatus installUploadedDeploymentPackage(
+            @FormParam("file") EntityPart part, @FormParam("file") InputStream uploadedInputStream) {
 
         final Optional<String> filename = Optional.ofNullable(part).flatMap(EntityPart::getFileName);
 
         if (!filename.isPresent()) {
-            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).type(MediaType.TEXT_PLAIN)
-                    .entity("Missing file").build());
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity("Missing file")
+                    .build());
         }
 
         final String uploadedFileName = filename.get();
-        final String uploadedFileLocation = System.getProperty(JAVA_IO_TMPDIR) + File.separator + UUID.randomUUID()
-                + ".dp";
+        final String uploadedFileLocation =
+                System.getProperty(JAVA_IO_TMPDIR) + File.separator + UUID.randomUUID() + ".dp";
 
         try {
             Files.deleteIfExists(Paths.get(uploadedFileLocation));
         } catch (IOException e) {
             logger.warn("Cannot delete file: {}", uploadedFileLocation);
             throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .type(MediaType.TEXT_PLAIN).entity(ERROR_INSTALLING_PACKAGE + uploadedFileName).build());
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(ERROR_INSTALLING_PACKAGE + uploadedFileName)
+                    .build());
         }
 
         File file = new File(uploadedFileLocation);
@@ -242,7 +254,9 @@ public class DeploymentRestService {
         } catch (IOException e) {
             logger.warn("Cannot create file: {}, caused by", file, e);
             throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .type(MediaType.TEXT_PLAIN).entity(ERROR_INSTALLING_PACKAGE + uploadedFileName).build());
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(ERROR_INSTALLING_PACKAGE + uploadedFileName)
+                    .build());
         }
 
         try {
@@ -252,7 +266,9 @@ public class DeploymentRestService {
         } catch (IOException e) {
             logger.warn("Error writing file to : {}, caused by", file.getAbsolutePath(), e);
             throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .type(MediaType.TEXT_PLAIN).entity(ERROR_INSTALLING_PACKAGE + uploadedFileName).build());
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(ERROR_INSTALLING_PACKAGE + uploadedFileName)
+                    .build());
         }
         logger.info("Deployment package \"{}\" uploaded to: {}", uploadedFileName, file.getAbsolutePath());
 
@@ -262,7 +278,9 @@ public class DeploymentRestService {
         } catch (Exception e) {
             logger.warn("Cannot install deployment package : {}, caused by", uploadedFileName, e);
             throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .type(MediaType.TEXT_PLAIN).entity(ERROR_INSTALLING_PACKAGE + uploadedFileName).build());
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(ERROR_INSTALLING_PACKAGE + uploadedFileName)
+                    .build());
         }
 
         return DeploymentRequestStatus.REQUEST_RECEIVED;
@@ -291,7 +309,9 @@ public class DeploymentRestService {
             this.deploymentAgentService.uninstallDeploymentPackageAsync(name);
         } catch (Exception e) {
             throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .type(MediaType.TEXT_PLAIN).entity(ERROR_UNINSTALLING_PACKAGE + name).build());
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(ERROR_UNINSTALLING_PACKAGE + name)
+                    .build());
         }
 
         return DeploymentRequestStatus.REQUEST_RECEIVED;

@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2020 Eurotech and/or its affiliates and others
- * 
+ * Copyright (c) 2011, 2026 Eurotech and/or its affiliates and others
+ *
  * This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License 2.0
  * which is available at https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *  Eurotech
  *******************************************************************************/
@@ -16,7 +16,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.Date;
 import java.util.function.Consumer;
-
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.core.deployment.CloudDeploymentHandlerV2;
 import org.eclipse.kura.core.deployment.UninstallStatus;
@@ -40,8 +39,11 @@ public class UninstallImpl {
     private final CommandExecutorService executorService;
     private final InstallImpl installImplementation;
 
-    public UninstallImpl(CloudDeploymentHandlerV2 callback, DeploymentAdmin deploymentAdmin,
-            CommandExecutorService executorService, InstallImpl installImplementation) {
+    public UninstallImpl(
+            CloudDeploymentHandlerV2 callback,
+            DeploymentAdmin deploymentAdmin,
+            CommandExecutorService executorService,
+            InstallImpl installImplementation) {
         this.callback = callback;
         this.deploymentAdmin = deploymentAdmin;
         this.executorService = executorService;
@@ -79,7 +81,8 @@ public class UninstallImpl {
                 DeploymentPackage dp = this.deploymentAdmin.getDeploymentPackage(name);
                 if (dp != null) {
                     dp.uninstall();
-                    String sUrl = this.installImplementation.getDeployedPackages().getProperty(name);
+                    String sUrl =
+                            this.installImplementation.getDeployedPackages().getProperty(name);
                     File dpFile = new File(new URL(sUrl).getPath());
                     if (!dpFile.delete()) {
                         logger.warn("Cannot delete file at URL: {}", sUrl);
@@ -107,12 +110,11 @@ public class UninstallImpl {
                 Consumer<CommandStatus> commandCallback = status -> {
                     // Do nothing...
                 };
-                this.executorService.execute(new Command(new String[] { "reboot" }), commandCallback);
+                this.executorService.execute(new Command(new String[] {"reboot"}), commandCallback);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 logger.error("Failed to reboot system", e);
             }
         }
     }
-
 }
