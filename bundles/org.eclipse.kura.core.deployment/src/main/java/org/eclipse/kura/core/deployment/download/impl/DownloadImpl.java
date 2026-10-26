@@ -49,6 +49,7 @@ public class DownloadImpl implements ProgressListener {
     private SslManagerService sslManagerService;
     private boolean alreadyDownloadedFlag;
     private String verificationDirectory;
+    private long maxDownloadSizeBytes = CloudDeploymentHandlerV2.MAX_DOWNLOAD_SIZE_DEFAULT;
 
     public DownloadImpl(DeploymentPackageDownloadOptions options, CloudDeploymentHandlerV2 callback) {
         this.options = options;
@@ -75,6 +76,10 @@ public class DownloadImpl implements ProgressListener {
 
     public void setVerificationDirectory(String verificationDirectory) {
         this.verificationDirectory = verificationDirectory;
+    }
+
+    public void setMaxDownloadSizeBytes(long maxDownloadSizeBytes) {
+        this.maxDownloadSizeBytes = maxDownloadSizeBytes;
     }
 
     @Override
@@ -175,6 +180,7 @@ public class DownloadImpl implements ProgressListener {
 
     private void incrementalDownloadFromURL(File dpFile, String url, int downloadIndex) throws Exception {
         OutputStream os = null;
+        boolean completed = false;
 
         try {
             os = new FileOutputStream(dpFile);
@@ -185,10 +191,12 @@ public class DownloadImpl implements ProgressListener {
             downloadOptions.setSslManagerService(this.sslManagerService);
             downloadOptions.setDownloadURL(url);
             downloadOptions.setAlreadyDownloaded(downloadIndex);
+            downloadOptions.setMaxDownloadSizeBytes(this.maxDownloadSizeBytes);
 
             this.downloadHelper = getDownloadInstance(this.options.getDownloadProtocol(), downloadOptions);
             this.downloadHelper.startWork();
             this.downloadHelper.close();
+            completed = true;
         } finally {
             if (os != null) {
                 try {
@@ -196,6 +204,9 @@ public class DownloadImpl implements ProgressListener {
                 } catch (IOException e1) {
                     s_logger.error("Exception while trying to close stream.", e1);
                 }
+            }
+            if (!completed) {
+                dpFile.delete();
             }
         }
 

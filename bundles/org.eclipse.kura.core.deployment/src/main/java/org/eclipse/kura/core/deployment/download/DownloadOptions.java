@@ -13,6 +13,7 @@
 package org.eclipse.kura.core.deployment.download;
 
 import java.io.OutputStream;
+import org.eclipse.kura.core.deployment.CloudDeploymentHandlerV2;
 import org.eclipse.kura.core.deployment.progress.ProgressListener;
 import org.eclipse.kura.ssl.SslManagerService;
 
@@ -24,6 +25,7 @@ public class DownloadOptions {
     private SslManagerService sslManagerService;
     private String downloadURL;
     private int alreadyDownloaded;
+    private long maxDownloadSizeBytes = CloudDeploymentHandlerV2.MAX_DOWNLOAD_SIZE_DEFAULT;
 
     public OutputStream getOut() {
         return this.out;
@@ -71,5 +73,13 @@ public class DownloadOptions {
 
     public void setAlreadyDownloaded(int alreadyDownloaded) {
         this.alreadyDownloaded = alreadyDownloaded;
+    }
+
+    public long getMaxDownloadSizeBytes() {
+        return this.maxDownloadSizeBytes;
+    }
+
+    public void setMaxDownloadSizeBytes(long maxDownloadSize) {
+        this.maxDownloadSizeBytes = maxDownloadSize;
     }
 }
