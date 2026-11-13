@@ -37,6 +37,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockserver.configuration.ConfigurationProperties;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.socket.PortFactory;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
@@ -47,6 +48,7 @@ public class FetchRemoteDeploymentPackageTest {
     private static final byte[] PACKAGE_CONTENT = "deployment package content".getBytes();
 
     private static ClientAndServer server;
+    private static String previousMockServerLogLevel;
 
     private final DeploymentAgent deploymentAgent = new DeploymentAgent();
     private File downloadedFile;
@@ -102,12 +104,19 @@ public class FetchRemoteDeploymentPackageTest {
 
     @BeforeClass
     public static void startServer() {
+        // MockServer logs every expectation and match at INFO level, including the full
+        // base64 encoded response
+        // body. The download size limit tests serve packages larger than 25MB, which
+        // would flood the build log.
+        previousMockServerLogLevel = ConfigurationProperties.logLevel().name();
+        ConfigurationProperties.logLevel("WARN");
         server = ClientAndServer.startClientAndServer(PortFactory.findFreePort());
     }
 
     @AfterClass
     public static void stopServer() {
         server.stop();
+        ConfigurationProperties.logLevel(previousMockServerLogLevel);
     }
 
     @Before
