@@ -13,11 +13,14 @@
 package org.eclipse.kura.internal.rest.deployment.agent.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -26,28 +29,38 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.EntityPart;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.deployment.agent.DeploymentAgentService;
 import org.eclipse.kura.deployment.agent.MarketplacePackageDescriptor;
+import org.eclipse.kura.internal.rest.deployment.agent.ConcurrentUploadLimiter;
 import org.eclipse.kura.internal.rest.deployment.agent.DeploymentPackageInfo;
 import org.eclipse.kura.internal.rest.deployment.agent.DeploymentRestService;
 import org.eclipse.kura.rest.deployment.agent.api.DeploymentRequestStatus;
 import org.eclipse.kura.rest.deployment.agent.api.DescriptorRequest;
 import org.eclipse.kura.rest.deployment.agent.api.InstallRequest;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.osgi.framework.Version;
 import org.osgi.service.deploymentadmin.DeploymentAdmin;
 import org.osgi.service.deploymentadmin.DeploymentPackage;
@@ -69,10 +82,14 @@ public class DeploymentRestServiceUnitTest {
     private UserAdmin mockUserAdmin = mock(UserAdmin.class);
     private InputStream mockInputStream = mock(InputStream.class);
     private EntityPart mockEntityPart = mock(EntityPart.class);
+    private ContainerRequestContext mockRequestContext = mock(ContainerRequestContext.class);
+    private final Map<String, Object> requestProperties = new HashMap<>();
+    private final ConcurrentUploadLimiter concurrentUploadLimiter = new ConcurrentUploadLimiter();
 
     private final ArrayList<DeploymentPackage> installedDeploymentPackages = new ArrayList<>();
 
     private MarketplacePackageDescriptor resultingMarketplacePackageDescriptor;
+    private Set<String> uploadedFilesBefore;
 
     @Test
     public void installDeploymentPackageWorksWithAreadyIssuedRequest() throws Exception {
@@ -188,6 +205,7 @@ public class DeploymentRestServiceUnitTest {
     @Test
     public void installUploadedDeploymentPackageWorks() throws Exception {
         givenDeploymentRestService();
+        givenTheRequestPassedTheConcurrentUploadLimiter();
         givenAMockInputStream();
         givenAMockFormDataContentWithFileName("mock.dp");
 
@@ -199,8 +217,21 @@ public class DeploymentRestServiceUnitTest {
     }
 
     @Test
+    public void installUploadedDeploymentPackageFailsWithBadRequestIfFormParametersAreMissing() throws Exception {
+        givenDeploymentRestService();
+        givenTheRequestPassedTheConcurrentUploadLimiter();
+
+        whenInstallUploadedDeploymentPackageIsCalledWith(null, null);
+
+        thenExceptionOccurred(WebApplicationException.class);
+        thenTheResponseStatusOfTheOccurredExceptionIs(400);
+        thenDeploymentAgentServiceIsNeverCalledToInstallDeploymentPackage();
+    }
+
+    @Test
     public void installUploadedDeploymentPackageThrowsOnInputStreamReadFailure() throws Exception {
         givenDeploymentRestService();
+        givenTheRequestPassedTheConcurrentUploadLimiter();
         givenAMockInputStreamThrowingOnRead();
         givenAMockFormDataContentWithFileName("mock.dp");
 
@@ -208,6 +239,34 @@ public class DeploymentRestServiceUnitTest {
 
         thenExceptionOccurred(WebApplicationException.class);
         thenDeploymentAgentServiceIsNeverCalledToInstallDeploymentPackage();
+    }
+
+    @Test
+    public void installUploadedDeploymentPackageDeletesFileOnInputStreamReadFailure() throws Exception {
+        givenDeploymentRestService();
+        givenTheRequestPassedTheConcurrentUploadLimiter();
+        givenAMockInputStreamThrowingOnRead();
+        givenAMockFormDataContentWithFileName("mock.dp");
+        givenTheUploadedFilesInTmpDir();
+
+        whenInstallUploadedDeploymentPackageIsCalledWith(this.mockEntityPart, this.mockInputStream);
+
+        thenExceptionOccurred(WebApplicationException.class);
+        thenNoUploadedFileIsLeftInTmpDir();
+    }
+
+    @Test
+    public void installUploadedDeploymentPackageDeletesFileOnInstallFailure() throws Exception {
+        givenDeploymentRestService();
+        givenTheRequestPassedTheConcurrentUploadLimiter();
+        givenAMockInputStream();
+        givenAMockFormDataContentWithFileName("mock.dp");
+        givenDeploymentAgentServiceThrowsExceptionOnInstall();
+
+        whenInstallUploadedDeploymentPackageIsCalledWith(this.mockEntityPart, this.mockInputStream);
+
+        thenExceptionOccurred(WebApplicationException.class);
+        thenUploadedFilePassedToDeploymentAgentServiceIsDeleted();
     }
 
     @Test
@@ -323,6 +382,21 @@ public class DeploymentRestServiceUnitTest {
         deploymentRestService.setDeploymentAgentService(this.mockDeploymentAgentService);
         deploymentRestService.setDeploymentAdmin(this.mockDeploymentAdmin);
         deploymentRestService.setUserAdmin(this.mockUserAdmin);
+        this.concurrentUploadLimiter.setDeploymentAgentService(this.mockDeploymentAgentService);
+
+        doAnswer(i -> this.requestProperties.put(i.getArgument(0), i.getArgument(1)))
+                .when(this.mockRequestContext)
+                .setProperty(anyString(), any());
+        when(this.mockRequestContext.getProperty(anyString()))
+                .thenAnswer(i -> this.requestProperties.get(i.getArgument(0)));
+    }
+
+    private void givenTheRequestPassedTheConcurrentUploadLimiter() {
+        try {
+            this.concurrentUploadLimiter.filter(this.mockRequestContext);
+        } catch (Exception e) {
+            fail("the request should have been admitted by the concurrent upload limiter");
+        }
     }
 
     private void givenInstalledDeploymentPackageWith(String name, String version) {
@@ -371,6 +445,10 @@ public class DeploymentRestServiceUnitTest {
         when(this.mockInputStream.read(any())).thenThrow(new IOException());
     }
 
+    private void givenTheUploadedFilesInTmpDir() {
+        this.uploadedFilesBefore = listUploadedFilesInTmpDir();
+    }
+
     private void givenDeploymentAgentServiceReturnsMarketplacePackageDescriptor(
             MarketplacePackageDescriptor descriptorToBeReturned) {
         when(this.mockDeploymentAgentService.getMarketplacePackageDescriptor(any()))
@@ -412,8 +490,8 @@ public class DeploymentRestServiceUnitTest {
 
     private void whenInstallUploadedDeploymentPackageIsCalledWith(EntityPart entityPart, InputStream mockInputStream) {
         try {
-            this.resultingDeploymentRequestStatus =
-                    this.deploymentRestService.installUploadedDeploymentPackage(entityPart, mockInputStream);
+            this.resultingDeploymentRequestStatus = this.deploymentRestService.installUploadedDeploymentPackage(
+                    entityPart, mockInputStream, this.mockRequestContext);
         } catch (Exception e) {
             this.occurredException = e;
         }
@@ -495,6 +573,22 @@ public class DeploymentRestServiceUnitTest {
                         startsWith(localPath.toUri().toURL().toString()));
     }
 
+    private void thenTheResponseStatusOfTheOccurredExceptionIs(int expectedStatus) {
+        assertEquals(
+                expectedStatus,
+                ((WebApplicationException) this.occurredException).getResponse().getStatus());
+    }
+
+    private void thenNoUploadedFileIsLeftInTmpDir() {
+        assertEquals(this.uploadedFilesBefore, listUploadedFilesInTmpDir());
+    }
+
+    private void thenUploadedFilePassedToDeploymentAgentServiceIsDeleted() throws Exception {
+        ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
+        verify(this.mockDeploymentAgentService, times(1)).installDeploymentPackageAsync(urlCaptor.capture());
+        assertFalse(new File(new URI(urlCaptor.getValue())).exists());
+    }
+
     private void thenDeploymentAgentServiceIsNeverCalledToInstallDeploymentPackage() throws Exception {
         verify(this.mockDeploymentAgentService, never()).installDeploymentPackageAsync(any());
     }
@@ -509,5 +603,13 @@ public class DeploymentRestServiceUnitTest {
 
     private void thenDeploymentAgentServiceIsCalledWithURL(String expectedUrl) {
         verify(this.mockDeploymentAgentService, times(1)).getMarketplacePackageDescriptor(expectedUrl);
+    }
+
+    private static Set<String> listUploadedFilesInTmpDir() {
+        File[] files = new File(System.getProperty(JAVA_IO_TMPDIR)).listFiles((dir, name) -> name.endsWith(".dp"));
+        if (files == null) {
+            return new HashSet<>();
+        }
+        return Arrays.stream(files).map(File::getName).collect(Collectors.toSet());
     }
 }

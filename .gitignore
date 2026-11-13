@@ -12,3 +12,4 @@ RemoteSystemsTempFiles
 .vscode
 lib
 hs_err_pid*
+bin

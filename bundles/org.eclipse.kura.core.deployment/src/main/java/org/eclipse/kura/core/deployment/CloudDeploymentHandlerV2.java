@@ -164,6 +164,10 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
 
     private String pendingUninstPackageName;
     private String installVerificationDir;
+    private Long maxDownloadSizeBytes;
+
+    static final String MAX_DOWNLOAD_SIZE_PROPNAME = "file.transfer.size.max";
+    public static final long MAX_DOWNLOAD_SIZE_DEFAULT = 1_048_576 * 25L; // 25MB
 
     private CloudNotificationPublisher cloudNotificationPublisher;
 
@@ -569,6 +573,7 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
             downloadImplementation.setSslManager(this.sslManagerService);
             downloadImplementation.setAlreadyDownloadedFlag(alreadyDownloaded);
             downloadImplementation.setVerificationDirectory(this.installVerificationDir);
+            downloadImplementation.setMaxDownloadSizeBytes(getFileDownloadSizeMaxBytes());
 
             Map<String, String> requestProperties = requestContext.getContextProperties();
             String notificationPublisherPid = requestProperties.get(NOTIFICATION_PUBLISHER_PID.name());
@@ -951,5 +956,23 @@ public class CloudDeploymentHandlerV2 implements ConfigurableComponent, RequestH
             ungetServiceReferences(marshallerSRs);
         }
         return result;
+    }
+
+    private long getFileDownloadSizeMaxBytes() {
+        if (this.maxDownloadSizeBytes != null) {
+            return maxDownloadSizeBytes.longValue();
+        }
+        this.maxDownloadSizeBytes = MAX_DOWNLOAD_SIZE_DEFAULT;
+
+        try {
+            this.maxDownloadSizeBytes = Long.parseLong(this.systemService
+                    .getProperties()
+                    .getProperty(MAX_DOWNLOAD_SIZE_PROPNAME, this.maxDownloadSizeBytes.toString()));
+        } catch (final NumberFormatException e) {
+            logger.warn(
+                    "Error parsing {}, using default of {}", MAX_DOWNLOAD_SIZE_PROPNAME, MAX_DOWNLOAD_SIZE_DEFAULT, e);
+        }
+
+        return this.maxDownloadSizeBytes;
     }
 }
