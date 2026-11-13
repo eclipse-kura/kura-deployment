@@ -102,7 +102,7 @@ public class DeploymentAgent implements DeploymentAgentService, ConfigurableComp
     private static final long THREAD_TERMINATION_TOUT = 1; // in seconds
 
     static final String MAX_DOWNLOAD_SIZE_PROPNAME = "file.transfer.size.max";
-    static final long MAX_DOWNLOAD_SIZE_DEFAULT = 1_048_576 * 25; // 25MB
+    static final long MAX_DOWNLOAD_SIZE_DEFAULT = 1_048_576 * 25L; // 25MB
 
     private static final Set<PosixFilePermission> DEFAULT_PACKAGES_DIR_PERMISSIONS =
             PosixFilePermissions.fromString("rwx------");
