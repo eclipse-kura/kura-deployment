@@ -18,6 +18,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
@@ -27,9 +29,12 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Base64;
+import java.util.Properties;
 import org.eclipse.kura.core.testutil.TestUtil;
+import org.eclipse.kura.system.SystemService;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockserver.integration.ClientAndServer;
@@ -57,6 +62,15 @@ public class PackageUrlCredentialsTest {
     @AfterClass
     public static void stopServer() {
         mockServer.stop();
+    }
+
+    @Before
+    public void setUp() {
+        SystemService systemService = mock(SystemService.class);
+        Properties properties = new Properties();
+        properties.put("file.transfer.size.max", "-1");
+        when(systemService.getProperties()).thenReturn(properties);
+        this.deploymentAgent.setSystemService(systemService);
     }
 
     @After
